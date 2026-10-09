@@ -685,7 +685,7 @@ function planMarkup(model, configuration) {
       : model.id === "suite-plus"
         ? "Garage and upper suite are two levels of one complete YardVest."
         : model.planDescription;
-  return `<section class="section plan-explorer" id="the-plan"><div class="section-head"><div><span class="eyebrow">THE PLAN</span><h2>${model.planTitle}</h2></div><p>${intro}</p></div><div class="view-toggle" role="group" aria-label="Floor plan view"><button type="button" class="active" data-plan-mode="dimensioned" aria-pressed="true">Dimensioned</button><button type="button" data-plan-mode="furnished" aria-pressed="false">Furnished</button></div><div class="compact-plan-grid">${views.map((view) => `<figure class="compact-plan-card" data-plan-card="${view.id}"><button type="button" data-plan-open aria-label="Enlarge ${view.title} plan"><img src="${view.image.src}" alt="${view.image.alt}" data-plan-image><span class="zoom-label">Enlarge ↗</span></button><figcaption><strong>${view.title}</strong><span data-plan-caption>${view.image.label}</span></figcaption></figure>`).join("")}</div></section>`;
+  return `<section class="section plan-explorer" id="the-plan" tabindex="-1"><div class="section-head"><div><span class="eyebrow">THE PLAN</span><h2>${model.planTitle}</h2></div><p>${intro}</p></div><div class="view-toggle" role="group" aria-label="Floor plan view"><button type="button" class="active" data-plan-mode="dimensioned" aria-pressed="true">Dimensioned</button><button type="button" data-plan-mode="furnished" aria-pressed="false">Furnished</button></div><div class="compact-plan-grid">${views.map((view) => `<figure class="compact-plan-card" data-plan-card="${view.id}"><button type="button" data-plan-open aria-label="Enlarge ${view.title} plan"><img src="${view.image.src}" alt="${view.image.alt}" data-plan-image><span class="zoom-label">Enlarge ↗</span></button><figcaption><strong>${view.title}</strong><span data-plan-caption>${view.image.label}</span></figcaption></figure>`).join("")}</div></section>`;
 }
 
 function configurationSummary(model, configuration) {
@@ -710,7 +710,7 @@ function modelPage(model, params = new URLSearchParams()) {
         ? "24′ × 24′ · TWO STOREYS"
         : "24′ × 24′ · 1 BED · 1 BATH · GARAGE";
   const layoutSection = model.planVariants
-    ? `<section class="section layout-section"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR LAYOUT</span><h2>Two purposeful upper levels.</h2></div><p>The main level remains the same. Choose how the upper floor works for you.</p></div><div class="layout-choices">${model.planVariants
+    ? `<section class="section layout-section" id="choose-layout"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR LAYOUT</span><h2>Two purposeful upper levels.</h2></div><p>The main level remains the same. Choose how the upper floor works for you.</p></div><div class="layout-choices">${model.planVariants
         .map((variant) => {
           const preview = planViews(model, {
             ...currentConfiguration,
@@ -719,9 +719,19 @@ function modelPage(model, params = new URLSearchParams()) {
           })[1].image;
           return `<button type="button" class="layout-choice ${variant.id === layout.id ? "active" : ""}" data-layout-select="${variant.id}" aria-pressed="${variant.id === layout.id}"><img src="${preview.src}" alt="${variant.name} upper-level plan"><span><strong>${variant.name}</strong><small>${variant.description}</small><em>${variant.id === layout.id ? "Selected" : "Choose layout"}</em></span></button>`;
         })
-        .join("")}</div></section>`
+        .join(
+          "",
+        )}</div><div class="selection-next"><button class="button button-dark" type="button" data-explore-plan>Explore ${layout.name} floor plan <span>↓</span></button></div></section>`
     : "";
-  return `<article class="model-configurator" data-product="${model.id}"><section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · <span data-current-style>${style.name.toUpperCase()}</span></span><h1>${model.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${model.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${model.id}">Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art"><img class="model-cover" data-hero-image src="${style.coverImage}" alt="${model.name} ${style.name} exterior" fetchpriority="high"></div></section><section class="section style-section" id="choose-style"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>One YardVest. Two expressions.</h2></div><p>Choose the architecture you prefer. Your selection updates here without moving you away from the design.</p></div><div class="style-choices">${model.styles.map((item) => `<button type="button" class="style-choice ${item.id === style.id ? "active" : ""}" data-style-select="${item.id}" aria-pressed="${item.id === style.id}"><img src="${item.coverImage}" alt="${model.name} ${item.name} style preview"><span><strong>${item.name}</strong><small>${item.description}</small><em>${item.id === style.id ? "Selected" : "Choose style"}</em></span></button>`).join("")}</div></section><section class="section exterior-explorer"><div class="section-head"><div><span class="eyebrow">EXPLORE <span data-gallery-style>${style.name.toUpperCase()}</span></span><h2 data-gallery-title>${style.name} from every angle.</h2></div><p data-style-description>${style.description}</p></div><figure class="exterior-main"><button type="button" data-gallery-open aria-label="Open selected exterior image"><img src="${style.gallery[0].src}" alt="${style.gallery[0].alt}" data-gallery-main><span class="zoom-label">View larger ↗</span></button></figure><div class="exterior-thumbnails" data-gallery-thumbnails>${style.gallery.map((image, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-gallery-index="${index}" aria-pressed="${index === 0}" aria-label="Show ${image.alt}"><img src="${image.src}" alt=""></button>`).join("")}</div><button class="text-link view-all" type="button" data-gallery-view-all>View all ${style.name} images ↗</button></section>${layoutSection}${planMarkup(model, currentConfiguration)}<section class="section"><div class="section-head"><div><span class="eyebrow">KEY FEATURES</span><h2>${model.tagline}</h2></div><p>${model.shortDescription}</p></div><ul class="feature-list">${model.features.map((feature) => `<li>${feature}</li>`).join("")}</ul></section>${configurationSummary(model, currentConfiguration)}<div class="configuration-bar" data-configuration-bar><strong>${model.name}</strong><span data-sticky-style>${style.name} ✓</span>${layout ? `<span data-sticky-layout>${layout.name} ✓</span>` : ""}<button type="button" data-save-configuration>Save My YardVest</button></div></article>`;
+  const exteriorNextLabel = model.planVariants
+    ? "Choose your layout"
+    : model.id === "suite-plus"
+      ? "Explore the plans"
+      : "Explore the floor plan";
+  const exteriorNextTarget = model.planVariants
+    ? "#choose-layout"
+    : "#the-plan";
+  return `<article class="model-configurator" data-product="${model.id}"><section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · <span data-current-style>${style.name.toUpperCase()}</span></span><h1>${model.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${model.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${model.id}">Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art"><img class="model-cover" data-hero-image src="${style.coverImage}" alt="${model.name} ${style.name} exterior" fetchpriority="high"></div></section><section class="section style-section" id="choose-style"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>One YardVest. Two expressions.</h2></div><p>Choose a style and we’ll bring its exterior views into focus.</p></div><div class="style-choices">${model.styles.map((item) => `<button type="button" class="style-choice ${item.id === style.id ? "active" : ""}" data-style-select="${item.id}" aria-pressed="${item.id === style.id}"><img src="${item.coverImage}" alt="${model.name} ${item.name} style preview"><span><strong>${item.name}</strong><small>${item.description}</small><em>${item.id === style.id ? "Selected" : "Choose style"}</em></span></button>`).join("")}</div><div class="selection-next"><button class="button button-dark" type="button" data-explore-exterior>Explore ${style.name} exterior <span>↓</span></button></div></section><section class="section exterior-explorer" tabindex="-1"><div class="section-head"><div><span class="eyebrow">EXPLORE <span data-gallery-style>${style.name.toUpperCase()}</span></span><h2 data-gallery-title>${style.name} from every angle.</h2></div><p data-style-description>${style.description}</p></div><figure class="exterior-main"><button type="button" data-gallery-open aria-label="Open selected exterior image"><img src="${style.gallery[0].src}" alt="${style.gallery[0].alt}" data-gallery-main><span class="zoom-label">View larger ↗</span></button></figure><div class="exterior-thumbnails" data-gallery-thumbnails>${style.gallery.map((image, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-gallery-index="${index}" aria-pressed="${index === 0}" aria-label="Show ${image.alt}"><img src="${image.src}" alt=""></button>`).join("")}</div><button class="text-link view-all" type="button" data-gallery-view-all>View all ${style.name} images ↗</button><div class="selection-next"><button class="button button-light" type="button" data-next-step="${exteriorNextTarget}">${exteriorNextLabel} <span>↓</span></button></div></section>${layoutSection}${planMarkup(model, currentConfiguration)}<section class="section"><div class="section-head"><div><span class="eyebrow">KEY FEATURES</span><h2>${model.tagline}</h2></div><p>${model.shortDescription}</p></div><ul class="feature-list">${model.features.map((feature) => `<li>${feature}</li>`).join("")}</ul></section>${configurationSummary(model, currentConfiguration)}<div class="configuration-bar" data-configuration-bar><strong>${model.name}</strong><span data-sticky-style>${style.name} ✓</span>${layout ? `<span data-sticky-layout>${layout.name} ✓</span>` : ""}<button type="button" data-save-configuration>Save My YardVest</button></div></article>`;
 }
 const pages = {
   "how-it-works": () =>
@@ -892,6 +902,8 @@ function updateConfigurator() {
     style.description;
   document.querySelector("[data-gallery-view-all]").textContent =
     `View all ${style.name} images ↗`;
+  document.querySelector("[data-explore-exterior]").innerHTML =
+    `Explore ${style.name} exterior <span>↓</span>`;
   document.querySelectorAll("[data-style-select]").forEach((button) => {
     const active = button.dataset.styleSelect === style.id;
     button.classList.toggle("active", active);
@@ -917,9 +929,25 @@ function updateConfigurator() {
   document.querySelector("[data-sticky-style]").textContent = `${style.name} ✓`;
   const stickyLayout = document.querySelector("[data-sticky-layout]");
   if (stickyLayout && layout) stickyLayout.textContent = `${layout.name} ✓`;
+  const explorePlan = document.querySelector("[data-explore-plan]");
+  if (explorePlan && layout)
+    explorePlan.innerHTML = `Explore ${layout.name} floor plan <span>↓</span>`;
   renderGallery(style);
   updatePlanMode("dimensioned");
   silentConfigurationUrl(model, currentConfiguration);
+}
+
+function moveToSection(selector) {
+  const target = document.querySelector(selector);
+  if (!target) return;
+  requestAnimationFrame(() => {
+    target.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+  });
 }
 
 function openLightbox(images, startIndex = 0) {
@@ -1009,6 +1037,7 @@ function bind() {
         styleId: style.id,
       });
       updateConfigurator();
+      moveToSection(".exterior-explorer");
     };
   });
   document.querySelectorAll("[data-layout-select]").forEach((button) => {
@@ -1024,8 +1053,20 @@ function bind() {
         layoutId: layout.id,
       });
       updateConfigurator();
+      moveToSection("#the-plan");
     };
   });
+  document
+    .querySelector("[data-explore-exterior]")
+    ?.addEventListener("click", () => moveToSection(".exterior-explorer"));
+  document
+    .querySelector("[data-explore-plan]")
+    ?.addEventListener("click", () => moveToSection("#the-plan"));
+  document
+    .querySelector("[data-next-step]")
+    ?.addEventListener("click", (event) =>
+      moveToSection(event.currentTarget.dataset.nextStep),
+    );
   bindGalleryControls();
   document
     .querySelector("[data-gallery-open]")

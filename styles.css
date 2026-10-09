@@ -1205,6 +1205,24 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
+.selection-next {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+}
+.selection-next .button {
+  min-width: 250px;
+  justify-content: center;
+}
+.exterior-explorer,
+.plan-explorer,
+.layout-section {
+  scroll-margin-top: 82px;
+}
+.exterior-explorer:focus,
+.plan-explorer:focus {
+  outline: none;
+}
 .layout-choice {
   display: grid;
   grid-template-columns: minmax(150px, 0.85fr) 1.15fr;
