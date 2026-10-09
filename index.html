@@ -26,10 +26,10 @@
     <nav class="desktop-nav" aria-label="Main navigation">
       <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a>
     </nav>
-    <button class="button button-dark header-cta" data-property-check>Check My Property <span>↗</span></button>
+    <div class="header-actions"><button class="advisor-link" data-advisor>Talk to an Advisor</button><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button></div>
     <button class="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"><span></span><span></span></button>
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
-      <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a><a href="#/builders">Builders</a>
+      <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a><a href="#/builders">Builders</a><button class="advisor-link" data-advisor>Talk to an Advisor</button>
       <button class="button button-dark" data-property-check>Check My Property</button>
     </nav>
   </header>
@@ -45,13 +45,30 @@
     <div class="form-intro"><span class="eyebrow">PROPERTY REVIEW</span><h2 id="property-title">Let’s start with your address.</h2><p>We’ll take an initial look and follow up about what may be possible. No automated zoning promises—just a thoughtful first review.</p></div>
     <form id="property-form" data-form="property">
       <div class="field full"><label for="property-address">Property address *</label><input id="property-address" name="propertyAddress" autocomplete="street-address" required placeholder="Street address, city, province/state"></div>
-      <div class="field"><label for="property-name">Name *</label><input id="property-name" name="name" autocomplete="name" required></div>
+      <div class="field"><label for="property-first-name">First name *</label><input id="property-first-name" name="firstName" autocomplete="given-name" required></div>
+      <div class="field"><label for="property-last-name">Last name *</label><input id="property-last-name" name="lastName" autocomplete="family-name" required></div>
       <div class="field"><label for="property-email">Email *</label><input id="property-email" name="email" type="email" autocomplete="email" required></div>
       <div class="field"><label for="property-phone">Phone</label><input id="property-phone" name="phone" type="tel" autocomplete="tel"></div>
-      <div class="field"><label for="property-interest">What are you interested in?</label><select id="property-interest" name="interest"><option value="">Choose one</option><option>Rental income</option><option>Housing for family</option><option>Additional living space</option><option>Garage + living space</option><option>Just exploring</option></select></div>
+      <div class="field"><label for="property-interest">What is your goal?</label><select id="property-interest" name="interest"><option value="">Choose one</option><option>Rental income</option><option>Housing for family</option><option>Flexible / additional space</option><option>Not sure yet</option></select></div>
+      <div class="field"><label for="property-model">Which home interests you?</label><select id="property-model" name="modelInterest"><option value="">Help me choose</option><option value="yv-one">YardVest One</option><option value="yv-two">YardVest Two</option><option value="suite-plus">Suite Plus</option></select></div>
       <div class="field full"><label for="property-notes">Tell us anything about your property</label><textarea id="property-notes" name="notes" rows="3"></textarea></div>
-      <input type="hidden" name="modelInterest" id="model-interest"><input type="hidden" name="sourcePage" id="source-page">
+      <input type="hidden" name="sourcePage" id="source-page">
       <div class="full"><button class="button button-accent button-wide" type="submit">Check My Property <span>↗</span></button><p class="form-note">By submitting, you agree that YardVest may contact you about your property.</p></div>
+    </form>
+  </dialog>
+  <dialog id="advisor-dialog" class="form-dialog" aria-labelledby="advisor-title">
+    <button class="dialog-close advisor-close" aria-label="Close">×</button>
+    <div class="form-intro"><span class="eyebrow">TALK TO AN ADVISOR</span><h2 id="advisor-title">Let’s talk about your property.</h2><p>Request a callback. We’ll connect this conversation to the same customer and property journey.</p></div>
+    <form data-form="advisor">
+      <div class="field"><label>First name *</label><input name="firstName" autocomplete="given-name" required></div>
+      <div class="field"><label>Last name *</label><input name="lastName" autocomplete="family-name" required></div>
+      <div class="field"><label>Email *</label><input name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label>Phone *</label><input name="phone" type="tel" autocomplete="tel" required></div>
+      <div class="field full"><label>Property address</label><input name="propertyAddress" autocomplete="street-address"></div>
+      <div class="field"><label>Preferred contact method</label><select name="contactMethod"><option>Phone</option><option>Email</option><option>Text message</option></select></div>
+      <div class="field"><label>Preferred time</label><input name="preferredTime" placeholder="e.g. Weekday mornings"></div>
+      <div class="field full"><label>How can we help?</label><textarea name="message" rows="4"></textarea></div>
+      <button class="button button-accent full" type="submit">Request an Advisor Callback ↗</button>
     </form>
   </dialog>
   <div class="toast" role="status" aria-live="polite"></div>
