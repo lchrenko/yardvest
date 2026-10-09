@@ -1336,6 +1336,9 @@ async function submitForm(e) {
     }
     submission = { ...fields, type, requestId: form._intakeRequestId };
   }
+  const submissionKey = config.businessIntakeUrl
+    ? config.businessIntakePublishableKey
+    : config.supabaseAnonKey;
   let saved = false;
   let responseData = {};
   try {
@@ -1343,7 +1346,7 @@ async function submitForm(e) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(config.supabaseAnonKey ? { apikey: config.supabaseAnonKey } : {}),
+        ...(submissionKey ? { apikey: submissionKey } : {}),
       },
       body: JSON.stringify(submission),
     });

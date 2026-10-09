@@ -52,7 +52,8 @@ Current YardVest One, YardVest Two and Suite Plus renderings and plans are store
 
 The adapted Project OS lives in the private `lchrenko/yardvest-backend` repository.
 After its new Supabase deployment is verified, set `businessIntakeUrl` in
-`config.js` to its `business-intake` function and `operationsUrl` to the staff app.
+`config.js` to its `business-intake` function, `businessIntakePublishableKey` to that new
+project's public key, and `operationsUrl` to the staff app.
 Property, advisor and partner forms will then use that endpoint, retaining a
 request ID across retries. With those values empty, the existing paths remain.
 

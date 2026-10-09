@@ -6,5 +6,6 @@ window.YARDVEST_CONFIG = {
   googleMapsApiKey: "",
   // Independent Project OS copy; set only after its new Supabase deployment is tested.
   businessIntakeUrl: "",
+  businessIntakePublishableKey: "",
   operationsUrl: "",
 };
