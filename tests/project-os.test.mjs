@@ -107,8 +107,13 @@ test("every public product asset referenced by app.js exists", async () => {
   );
 });
 
-test("production intake does not persist lead data in localStorage", async () => {
+test("local persistence is limited to the non-sensitive saved configuration", async () => {
   const app = await readFile(new URL("../app.js", import.meta.url), "utf8");
   assert.equal(app.includes("yardvest_leads"), false);
-  assert.equal(app.includes("localStorage.setItem"), false);
+  assert.equal(app.includes('"yardvest_saved_configuration"'), true);
+  assert.equal(
+    app.includes("localStorage.setItem(SAVED_CONFIGURATION_KEY"),
+    true,
+  );
+  assert.equal(app.includes("history.replaceState"), true);
 });

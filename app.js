@@ -466,10 +466,51 @@ const faqs = [
   ],
 ];
 const main = document.querySelector("#main");
+const SAVED_CONFIGURATION_KEY = "yardvest_saved_configuration";
+let currentConfiguration = null;
+
+const configurationStore = {
+  get() {
+    try {
+      return JSON.parse(
+        localStorage.getItem(SAVED_CONFIGURATION_KEY) || "null",
+      );
+    } catch {
+      return null;
+    }
+  },
+  save(configuration) {
+    const saved = {
+      ...configuration,
+      upgrades: [...(configuration.upgrades || [])],
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(SAVED_CONFIGURATION_KEY, JSON.stringify(saved));
+    return saved;
+  },
+};
+
 const analytics = (event, detail = {}) => {
   window.yardVestEvents = window.yardVestEvents || [];
   window.yardVestEvents.push({ event, detail, at: new Date().toISOString() });
 };
+const selectedModel = (configuration = currentConfiguration) =>
+  models.find((model) => model.id === configuration?.productId);
+const selectedStyle = (model, configuration = currentConfiguration) =>
+  model?.styles.find((style) => style.id === configuration?.styleId) ||
+  model?.styles[0];
+const selectedLayout = (model, configuration = currentConfiguration) =>
+  model?.planVariants?.find(
+    (variant) => variant.id === configuration?.layoutId,
+  ) || model?.planVariants?.[0];
+const configurationLine = (configuration = currentConfiguration) =>
+  [
+    configuration?.productName,
+    configuration?.styleName,
+    configuration?.layoutName,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 const pairedImages = (model, extra = "") =>
   `<div class="paired-images ${extra}">${model.styles
     .map(
@@ -556,28 +597,131 @@ function home() {
 function homesPage() {
   return `<section class="page-hero"><span class="eyebrow">THE YARDVEST COLLECTION</span><h1>Three homes. Two styles.</h1><p>Choose a product family, then compare its Modern and Coastal architecture side by side.</p></section><section class="section"><div class="product-showcase-list">${models.map(productShowcase).join("")}</div></section><section class="final-cta"><h2>Find the home that fits your yard.</h2><button class="button button-dark" data-property-check>Check My Property ↗</button></section>`;
 }
-function modelPage(m, params = new URLSearchParams()) {
-  analytics("model_viewed", { model: m.id });
+function createConfiguration(model, params) {
+  const saved = configurationStore.get();
+  const restored = saved?.productId === model.id ? saved : null;
+  const style =
+    model.styles.find((item) => item.id === params.get("style")) ||
+    model.styles.find((item) => item.id === restored?.styleId) ||
+    model.styles[0];
+  const layout =
+    model.planVariants?.find((item) => item.id === params.get("layout")) ||
+    model.planVariants?.find((item) => item.id === restored?.layoutId) ||
+    model.planVariants?.[0] ||
+    null;
+  return {
+    productId: model.id,
+    productName: model.name,
+    styleId: style.id,
+    styleName: style.name,
+    layoutId: layout?.id || null,
+    layoutName: layout?.name || null,
+    finishId: null,
+    finishName: null,
+    upgrades: [],
+  };
+}
+
+function planViews(model, configuration, mode = "dimensioned") {
+  const plan = (pattern, furnished = false) =>
+    model.floorPlans.find(
+      (item) =>
+        pattern.test(item.label) &&
+        (furnished
+          ? /furnished/i.test(item.label)
+          : !/furnished|alternative/i.test(item.label)),
+    );
+  if (model.id === "yv-two") {
+    const layoutPattern =
+      configuration.layoutId === "second-bath" ? /second bath/i : /flex/i;
+    return [
+      {
+        id: "main",
+        title: "Main level",
+        image: plan(/main level/i, mode === "furnished") || model.floorPlans[0],
+      },
+      {
+        id: "upper",
+        title: `${configuration.layoutName} upper level`,
+        image: plan(layoutPattern, mode === "furnished") || model.floorPlans[1],
+      },
+    ];
+  }
+  if (model.id === "suite-plus") {
+    return [
+      {
+        id: "garage",
+        title: "Garage level",
+        image:
+          plan(/garage level/i, mode === "furnished") || model.floorPlans[0],
+      },
+      {
+        id: "upper",
+        title: "Upper suite",
+        image:
+          plan(/upper suite/i, mode === "furnished") || model.floorPlans[1],
+      },
+    ];
+  }
+  return [
+    {
+      id: "standard",
+      title: "Standard one-bedroom plan",
+      image:
+        mode === "furnished"
+          ? model.floorPlans.find((item) =>
+              /furnished plan/i.test(item.label),
+            ) || model.floorPlans[1]
+          : model.floorPlans[0],
+    },
+  ];
+}
+
+function planMarkup(model, configuration) {
+  const views = planViews(model, configuration);
+  const intro =
+    model.id === "yv-one"
+      ? "One carefully considered plan. Two architectural styles."
+      : model.id === "suite-plus"
+        ? "Garage and upper suite are two levels of one complete YardVest."
+        : model.planDescription;
+  return `<section class="section plan-explorer" id="the-plan"><div class="section-head"><div><span class="eyebrow">THE PLAN</span><h2>${model.planTitle}</h2></div><p>${intro}</p></div><div class="view-toggle" role="group" aria-label="Floor plan view"><button type="button" class="active" data-plan-mode="dimensioned" aria-pressed="true">Dimensioned</button><button type="button" data-plan-mode="furnished" aria-pressed="false">Furnished</button></div><div class="compact-plan-grid">${views.map((view) => `<figure class="compact-plan-card" data-plan-card="${view.id}"><button type="button" data-plan-open aria-label="Enlarge ${view.title} plan"><img src="${view.image.src}" alt="${view.image.alt}" data-plan-image><span class="zoom-label">Enlarge ↗</span></button><figcaption><strong>${view.title}</strong><span data-plan-caption>${view.image.label}</span></figcaption></figure>`).join("")}</div></section>`;
+}
+
+function configurationSummary(model, configuration) {
+  const planLabel =
+    model.id === "yv-one"
+      ? "Standard one-bedroom plan"
+      : model.id === "suite-plus"
+        ? "Garage + upper suite"
+        : configuration.layoutName;
+  return `<section class="section configuration-summary" id="your-yardvest"><div class="summary-image"><img src="${selectedStyle(model, configuration).coverImage}" alt="${configurationLine(configuration)}" data-summary-image></div><div class="summary-copy"><span class="eyebrow">YOUR YARDVEST</span><h2 data-summary-product>${configuration.productName}</h2><dl><div><dt>Style</dt><dd data-summary-style>${configuration.styleName}</dd></div><div><dt>${model.id === "yv-one" ? "Plan" : model.id === "suite-plus" ? "Levels" : "Layout"}</dt><dd data-summary-layout>${planLabel}</dd></div><div><dt>Finish</dt><dd>To be selected later</dd></div><div><dt>Upgrades</dt><dd>None</dd></div></dl><div class="summary-actions"><button class="button button-accent" type="button" data-save-configuration>Save My YardVest</button><button class="button button-dark" type="button" data-property-check data-model="${model.id}">Check My Property</button><button class="button button-light" type="button" data-advisor>Talk to an Expert</button></div></div></section>`;
+}
+
+function modelPage(model, params = new URLSearchParams()) {
+  currentConfiguration = createConfiguration(model, params);
+  analytics("product_viewed", { productId: model.id });
+  const style = selectedStyle(model);
+  const layout = selectedLayout(model);
   const specs =
-    m.id === "yv-one"
-      ? "24′ × 24′ FOOTPRINT · 1 BED · 1 BATH"
-      : m.id === "yv-two"
-        ? "24′ × 24′ FOOTPRINT · TWO STOREYS · FLEX OR SECOND BATH"
-        : "24′ × 24′ FOOTPRINT · 1 BED · 1 BATH · GARAGE";
-  const selectedStyle =
-    m.styles.find((style) => style.id === params.get("style")) || m.styles[0];
-  const selectedVariant =
-    m.planVariants?.find((variant) => variant.id === params.get("layout")) ||
-    m.planVariants?.[0];
-  const query = (styleId, layoutId = selectedVariant?.id) =>
-    `#/homes/${m.slug}?style=${styleId}${layoutId ? `&layout=${layoutId}` : ""}`;
-  const hero = `<img class="model-cover" src="${selectedStyle.coverImage}" alt="${m.name} ${selectedStyle.name} exterior" fetchpriority="high">`;
-  const media = `<div class="gallery-grid">${selectedStyle.gallery.map((image, i) => `<figure class="${i === 0 ? "gallery-featured" : ""}"><img src="${image.src}" alt="${image.alt}" loading="${i < 2 ? "eager" : "lazy"}"><figcaption>${image.style}</figcaption></figure>`).join("")}</div>`;
-  const planSet = selectedVariant?.floorPlans || m.floorPlans;
-  const plans = planSet?.length
-    ? `<section class="section"><div class="section-head"><div><span class="eyebrow">PLANS</span><h2>${m.planTitle || "Two levels. One efficient footprint."}</h2></div><p>${m.planDescription || "Review the current plans and furnished views."}</p></div>${m.planVariants ? `<div class="choice-tabs" aria-label="Choose layout">${m.planVariants.map((variant) => `<a class="choice-tab ${variant.id === selectedVariant.id ? "active" : ""}" href="${query(selectedStyle.id, variant.id)}"><strong>${variant.name}</strong><span>${variant.description}</span></a>`).join("")}</div>` : ""}<div class="plan-grid">${planSet.map((plan) => `<figure class="plan-card"><img src="${plan.src}" alt="${plan.alt}" loading="lazy"><figcaption>${plan.label}</figcaption></figure>`).join("")}</div></section>`
+    model.id === "yv-one"
+      ? "24′ × 24′ · 1 BED · 1 BATH"
+      : model.id === "yv-two"
+        ? "24′ × 24′ · TWO STOREYS"
+        : "24′ × 24′ · 1 BED · 1 BATH · GARAGE";
+  const layoutSection = model.planVariants
+    ? `<section class="section layout-section"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR LAYOUT</span><h2>Two purposeful upper levels.</h2></div><p>The main level remains the same. Choose how the upper floor works for you.</p></div><div class="layout-choices">${model.planVariants
+        .map((variant) => {
+          const preview = planViews(model, {
+            ...currentConfiguration,
+            layoutId: variant.id,
+            layoutName: variant.name,
+          })[1].image;
+          return `<button type="button" class="layout-choice ${variant.id === layout.id ? "active" : ""}" data-layout-select="${variant.id}" aria-pressed="${variant.id === layout.id}"><img src="${preview.src}" alt="${variant.name} upper-level plan"><span><strong>${variant.name}</strong><small>${variant.description}</small><em>${variant.id === layout.id ? "Selected" : "Choose layout"}</em></span></button>`;
+        })
+        .join("")}</div></section>`
     : "";
-  return `<section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · ${selectedStyle.name.toUpperCase()}</span><h1>${m.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${m.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${m.id}">Check Eligibility & Rent Potential <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art">${hero}</div></section><section class="section style-section"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>Modern or Coastal.</h2></div><p>Same YardVest family and plan philosophy, expressed through two distinct architectural languages.</p></div><div class="style-choices">${m.styles.map((style) => `<a class="style-choice ${style.id === selectedStyle.id ? "active" : ""}" href="${query(style.id)}"><img src="${style.coverImage}" alt="${m.name} ${style.name}"><div><strong>${style.name}</strong><p>${style.description}</p><span>${style.id === selectedStyle.id ? "Selected" : "View style"} ↗</span></div></a>`).join("")}</div><nav class="style-tabs" aria-label="Selected architectural style">${m.styles.map((style) => `<a class="${style.id === selectedStyle.id ? "active" : ""}" href="${query(style.id)}">${style.name}</a>`).join("")}</nav></section><section class="section"><div class="section-head"><div><span class="eyebrow">${selectedStyle.name.toUpperCase()}</span><h2>${selectedStyle.name} from every angle.</h2></div><p>${selectedStyle.description}</p></div>${media}</section><section class="section"><div class="section-head"><div><span class="eyebrow">AT A GLANCE</span><h2>${m.tagline}</h2></div><p>${m.shortDescription}</p></div><ul class="feature-list">${m.features.map((f) => `<li>${f}</li>`).join("")}</ul></section>${plans}<section class="final-cta"><h2>Could ${m.name} fit your property?</h2><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${m.id}">Check Eligibility & Rent Potential ↗</button><button class="button button-light" data-advisor>Talk to an Expert</button></div></section>`;
+  return `<article class="model-configurator" data-product="${model.id}"><section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · <span data-current-style>${style.name.toUpperCase()}</span></span><h1>${model.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${model.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${model.id}">Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art"><img class="model-cover" data-hero-image src="${style.coverImage}" alt="${model.name} ${style.name} exterior" fetchpriority="high"></div></section><section class="section style-section" id="choose-style"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>One YardVest. Two expressions.</h2></div><p>Choose the architecture you prefer. Your selection updates here without moving you away from the design.</p></div><div class="style-choices">${model.styles.map((item) => `<button type="button" class="style-choice ${item.id === style.id ? "active" : ""}" data-style-select="${item.id}" aria-pressed="${item.id === style.id}"><img src="${item.coverImage}" alt="${model.name} ${item.name} style preview"><span><strong>${item.name}</strong><small>${item.description}</small><em>${item.id === style.id ? "Selected" : "Choose style"}</em></span></button>`).join("")}</div></section><section class="section exterior-explorer"><div class="section-head"><div><span class="eyebrow">EXPLORE <span data-gallery-style>${style.name.toUpperCase()}</span></span><h2 data-gallery-title>${style.name} from every angle.</h2></div><p data-style-description>${style.description}</p></div><figure class="exterior-main"><button type="button" data-gallery-open aria-label="Open selected exterior image"><img src="${style.gallery[0].src}" alt="${style.gallery[0].alt}" data-gallery-main><span class="zoom-label">View larger ↗</span></button></figure><div class="exterior-thumbnails" data-gallery-thumbnails>${style.gallery.map((image, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-gallery-index="${index}" aria-pressed="${index === 0}" aria-label="Show ${image.alt}"><img src="${image.src}" alt=""></button>`).join("")}</div><button class="text-link view-all" type="button" data-gallery-view-all>View all ${style.name} images ↗</button></section>${layoutSection}${planMarkup(model, currentConfiguration)}<section class="section"><div class="section-head"><div><span class="eyebrow">KEY FEATURES</span><h2>${model.tagline}</h2></div><p>${model.shortDescription}</p></div><ul class="feature-list">${model.features.map((feature) => `<li>${feature}</li>`).join("")}</ul></section>${configurationSummary(model, currentConfiguration)}<div class="configuration-bar" data-configuration-bar><strong>${model.name}</strong><span data-sticky-style>${style.name} ✓</span>${layout ? `<span data-sticky-layout>${layout.name} ✓</span>` : ""}<button type="button" data-save-configuration>Save My YardVest</button></div></article>`;
 }
 const pages = {
   "how-it-works": () =>
@@ -654,21 +798,266 @@ const pages = {
     `<article class="content-page"><span class="eyebrow">LEGAL</span><h1>Privacy</h1><p>YardVest collects information you submit so we can respond to property and partner inquiries and coordinate your project. We do not sell submitted personal information. Production submissions are sent to the secure Project OS and are not retained in browser local storage.</p><h2>Information collected</h2><p>Contact details, property address, interests, notes, source page, model interest and project activity needed to deliver the YardVest service.</p></article>`,
   terms: () =>
     `<article class="content-page"><span class="eyebrow">LEGAL</span><h1>Terms</h1><p>Website information is general and does not constitute legal, planning, financing or construction advice. Designs, dimensions and areas are approximate. Property eligibility, approvals, pricing, timelines, incentives and rental use require project-specific confirmation.</p></article>`,
-  portal: () =>
-    osPage("MY YARDVEST", "Your project. One clear next step.", "portal"),
+  portal: () => myYardVestPage(),
   admin: () =>
     osPage("YARDVEST PROJECT OS", "Sales and delivery, connected.", "admin"),
 };
+function myYardVestPage() {
+  const saved = configurationStore.get();
+  if (!saved) {
+    return `<section class="page-hero"><span class="eyebrow">MY YARDVEST</span><h1>You haven’t saved a YardVest yet.</h1><p>Explore the three YardVest homes, choose your style and layout, then save the configuration that feels right.</p><a class="button button-dark" href="#/homes">Explore the Homes ↗</a></section>`;
+  }
+  const model = models.find((item) => item.id === saved.productId);
+  if (!model) return homesPage();
+  const style = selectedStyle(model, saved);
+  const layoutLabel =
+    model.id === "yv-one"
+      ? "Standard one-bedroom plan"
+      : model.id === "suite-plus"
+        ? "Garage + upper suite"
+        : saved.layoutName;
+  const editUrl = `#/homes/${model.slug}?style=${saved.styleId}${saved.layoutId ? `&layout=${saved.layoutId}` : ""}`;
+  return `<section class="saved-yardvest-hero"><div><span class="eyebrow">MY YARDVEST</span><h1>${saved.productName}</h1><p>${[saved.styleName, saved.layoutName].filter(Boolean).join(" · ")}</p></div><img src="${style.coverImage}" alt="${configurationLine(saved)} exterior"></section><section class="section saved-configuration"><div><span class="eyebrow">YOUR CONFIGURATION</span><h2>This is your YardVest.</h2><p>Saved ${saved.updatedAt ? new Date(saved.updatedAt).toLocaleDateString() : "in this browser"}.</p></div><dl><div><dt>Home</dt><dd>${saved.productName}</dd></div><div><dt>Style</dt><dd>${saved.styleName}</dd></div><div><dt>${model.id === "yv-one" ? "Plan" : model.id === "suite-plus" ? "Levels" : "Layout"}</dt><dd>${layoutLabel}</dd></div><div><dt>Finish</dt><dd>Not selected</dd></div><div><dt>Upgrades</dt><dd>None</dd></div></dl><div class="summary-actions"><a class="button button-accent" href="${editUrl}">View My Design</a><a class="button button-light" href="${editUrl}">Edit Selections</a><button class="button button-dark" data-property-check data-model="${model.id}" data-saved-context>Check My Property</button><button class="button button-light" data-advisor data-saved-context>Talk to an Expert</button></div></section>`;
+}
 function osPage(eyebrow, title, mode) {
   return `<section class="page-hero"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>Secure access to your YardVest journey, documents, appointments and actions.</p></section><section class="os-shell"><form class="os-login" data-os-login><h2>Sign in</h2><div class="field"><label>Email</label><input name="email" type="email" autocomplete="email" required></div><div class="field"><label>Password</label><input name="password" type="password" autocomplete="current-password" required></div><p class="os-error" data-login-error></p><button class="button button-dark" type="submit">Continue securely</button></form><div data-os-root="${mode}"></div></section>`;
 }
+
+function silentConfigurationUrl(model, configuration) {
+  const query = new URLSearchParams({ style: configuration.styleId });
+  if (configuration.layoutId) query.set("layout", configuration.layoutId);
+  history.replaceState(
+    null,
+    "",
+    `${location.pathname}${location.search}#/homes/${model.slug}?${query}`,
+  );
+}
+
+function updatePlanMode(mode = "dimensioned") {
+  const model = selectedModel();
+  if (!model) return;
+  const views = planViews(model, currentConfiguration, mode);
+  document.querySelectorAll("[data-plan-mode]").forEach((button) => {
+    const active = button.dataset.planMode === mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  views.forEach((view) => {
+    const card = document.querySelector(`[data-plan-card="${view.id}"]`);
+    if (!card) return;
+    const image = card.querySelector("[data-plan-image]");
+    image.src = view.image.src;
+    image.alt = view.image.alt;
+    card.querySelector("[data-plan-caption]").textContent = view.image.label;
+  });
+  analytics("floorplan_viewed", {
+    productId: model.id,
+    layoutId: currentConfiguration.layoutId,
+    mode,
+  });
+}
+
+function renderGallery(style, selectedIndex = 0) {
+  const image = style.gallery[selectedIndex] || style.gallery[0];
+  const mainImage = document.querySelector("[data-gallery-main]");
+  if (!mainImage) return;
+  mainImage.src = image.src;
+  mainImage.alt = image.alt;
+  mainImage.dataset.galleryIndex = String(selectedIndex);
+  const thumbnails = document.querySelector("[data-gallery-thumbnails]");
+  thumbnails.innerHTML = style.gallery
+    .map(
+      (item, index) =>
+        `<button type="button" class="${index === selectedIndex ? "active" : ""}" data-gallery-index="${index}" aria-pressed="${index === selectedIndex}" aria-label="Show ${item.alt}"><img src="${item.src}" alt=""></button>`,
+    )
+    .join("");
+  bindGalleryControls();
+}
+
+function updateConfigurator() {
+  const model = selectedModel();
+  const style = selectedStyle(model);
+  const layout = selectedLayout(model);
+  if (!model || !style) return;
+  const hero = document.querySelector("[data-hero-image]");
+  hero.src = style.coverImage;
+  hero.alt = `${model.name} ${style.name} exterior`;
+  document.querySelector("[data-current-style]").textContent =
+    style.name.toUpperCase();
+  document.querySelector("[data-gallery-style]").textContent =
+    style.name.toUpperCase();
+  document.querySelector("[data-gallery-title]").textContent =
+    `${style.name} from every angle.`;
+  document.querySelector("[data-style-description]").textContent =
+    style.description;
+  document.querySelector("[data-gallery-view-all]").textContent =
+    `View all ${style.name} images ↗`;
+  document.querySelectorAll("[data-style-select]").forEach((button) => {
+    const active = button.dataset.styleSelect === style.id;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.querySelector("em").textContent = active
+      ? "Selected"
+      : "Choose style";
+  });
+  document.querySelectorAll("[data-layout-select]").forEach((button) => {
+    const active = button.dataset.layoutSelect === layout?.id;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.querySelector("em").textContent = active
+      ? "Selected"
+      : "Choose layout";
+  });
+  document.querySelector("[data-summary-image]").src = style.coverImage;
+  document.querySelector("[data-summary-image]").alt =
+    configurationLine(currentConfiguration);
+  document.querySelector("[data-summary-style]").textContent = style.name;
+  const summaryLayout = document.querySelector("[data-summary-layout]");
+  if (model.id === "yv-two") summaryLayout.textContent = layout.name;
+  document.querySelector("[data-sticky-style]").textContent = `${style.name} ✓`;
+  const stickyLayout = document.querySelector("[data-sticky-layout]");
+  if (stickyLayout && layout) stickyLayout.textContent = `${layout.name} ✓`;
+  renderGallery(style);
+  updatePlanMode("dimensioned");
+  silentConfigurationUrl(model, currentConfiguration);
+}
+
+function openLightbox(images, startIndex = 0) {
+  let index = Math.max(0, Math.min(startIndex, images.length - 1));
+  const lightbox = document.createElement("dialog");
+  lightbox.className = "media-lightbox";
+  lightbox.setAttribute("aria-label", "Architectural image viewer");
+  const draw = () => {
+    const image = images[index];
+    lightbox.innerHTML = `<button class="lightbox-close" type="button" aria-label="Close image viewer">×</button><button class="lightbox-arrow previous" type="button" aria-label="Previous image">←</button><figure><img src="${image.src}" alt="${image.alt}"><figcaption>${image.label || image.style || "YardVest design"}</figcaption></figure><button class="lightbox-arrow next" type="button" aria-label="Next image">→</button>`;
+    lightbox.querySelector(".lightbox-close").onclick = () => lightbox.close();
+    lightbox.querySelector(".previous").onclick = () => {
+      index = (index - 1 + images.length) % images.length;
+      draw();
+    };
+    lightbox.querySelector(".next").onclick = () => {
+      index = (index + 1) % images.length;
+      draw();
+    };
+  };
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) lightbox.close();
+  });
+  lightbox.addEventListener("close", () => lightbox.remove());
+  lightbox.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") {
+      index = (index - 1 + images.length) % images.length;
+      draw();
+    }
+    if (event.key === "ArrowRight") {
+      index = (index + 1) % images.length;
+      draw();
+    }
+  });
+  document.body.append(lightbox);
+  draw();
+  lightbox.showModal();
+  lightbox.querySelector(".lightbox-close").focus();
+}
+
+function bindGalleryControls() {
+  document.querySelectorAll("[data-gallery-index]").forEach((button) => {
+    button.onclick = () => {
+      const style = selectedStyle(selectedModel());
+      const index = Number(button.dataset.galleryIndex);
+      renderGallery(style, index);
+      analytics("gallery_image_selected", {
+        productId: currentConfiguration.productId,
+        styleId: style.id,
+        index,
+      });
+    };
+  });
+}
+
+function actionConfiguration(button) {
+  if (button.closest(".model-configurator")) return currentConfiguration;
+  if (button.dataset.savedContext !== undefined)
+    return configurationStore.get();
+  return null;
+}
+
 function bind() {
   document
     .querySelectorAll("[data-property-check]")
-    .forEach((b) => (b.onclick = () => openProperty(b.dataset.model)));
+    .forEach(
+      (button) =>
+        (button.onclick = () =>
+          openProperty(button.dataset.model, actionConfiguration(button))),
+    );
   document
     .querySelectorAll("[data-advisor]")
-    .forEach((b) => (b.onclick = openAdvisor));
+    .forEach(
+      (button) =>
+        (button.onclick = () => openAdvisor(actionConfiguration(button))),
+    );
+  document.querySelectorAll("[data-style-select]").forEach((button) => {
+    button.onclick = () => {
+      const model = selectedModel();
+      const style = model.styles.find(
+        (item) => item.id === button.dataset.styleSelect,
+      );
+      currentConfiguration.styleId = style.id;
+      currentConfiguration.styleName = style.name;
+      analytics("style_selected", {
+        productId: model.id,
+        styleId: style.id,
+      });
+      updateConfigurator();
+    };
+  });
+  document.querySelectorAll("[data-layout-select]").forEach((button) => {
+    button.onclick = () => {
+      const model = selectedModel();
+      const layout = model.planVariants.find(
+        (item) => item.id === button.dataset.layoutSelect,
+      );
+      currentConfiguration.layoutId = layout.id;
+      currentConfiguration.layoutName = layout.name;
+      analytics("layout_selected", {
+        productId: model.id,
+        layoutId: layout.id,
+      });
+      updateConfigurator();
+    };
+  });
+  bindGalleryControls();
+  document
+    .querySelector("[data-gallery-open]")
+    ?.addEventListener("click", () => {
+      const style = selectedStyle(selectedModel());
+      const index = Number(
+        document.querySelector("[data-gallery-main]").dataset.galleryIndex || 0,
+      );
+      openLightbox(style.gallery, index);
+    });
+  document
+    .querySelector("[data-gallery-view-all]")
+    ?.addEventListener("click", () =>
+      openLightbox(selectedStyle(selectedModel()).gallery),
+    );
+  document.querySelectorAll("[data-plan-mode]").forEach((button) => {
+    button.onclick = () => updatePlanMode(button.dataset.planMode);
+  });
+  document.querySelectorAll("[data-plan-open]").forEach((button) => {
+    button.onclick = () => {
+      const image = button.querySelector("img");
+      openLightbox([{ src: image.src, alt: image.alt, label: image.alt }]);
+    };
+  });
+  document.querySelectorAll("[data-save-configuration]").forEach((button) => {
+    button.onclick = () => {
+      configurationStore.save(currentConfiguration);
+      analytics("configuration_saved", { ...currentConfiguration });
+      showToast("Your YardVest has been saved.");
+      button.textContent = "Saved ✓";
+    };
+  });
   document.querySelectorAll(".faq-question").forEach(
     (b) =>
       (b.onclick = () => {
@@ -689,6 +1078,7 @@ function route() {
   const [path, query = ""] = raw.split("?");
   const params = new URLSearchParams(query);
   const parts = path.split("/").filter(Boolean);
+  currentConfiguration = null;
   let html;
   if (!parts.length) html = home();
   else if (parts[0] === "homes" && parts[1]) {
@@ -702,7 +1092,7 @@ function route() {
         `<article class="content-page"><h1>Page not found.</h1><p><a class="text-link" href="#/">Return home</a></p></article>`)
     )();
   main.innerHTML = html;
-  window.scrollTo(0, 0);
+  requestAnimationFrame(() => window.scrollTo(0, 0));
   bind();
   window.bindProjectOS?.();
   document.querySelector(".mobile-nav").classList.remove("open");
@@ -710,12 +1100,44 @@ function route() {
   document.title = `${parts.length ? (parts[1] ? models.find((x) => x.slug === parts[1])?.name : parts[0].replaceAll("-", " ")) + " — " : ""}YardVest`;
 }
 const dialog = document.querySelector("#property-dialog");
-function openProperty(model = "") {
+function applyFormContext(form, configuration, type) {
+  const context = form.querySelector(`[data-${type}-context]`);
+  const line = form.querySelector(`[data-${type}-context-line]`);
+  const fields = [
+    "productId",
+    "productName",
+    "styleId",
+    "styleName",
+    "layoutId",
+    "layoutName",
+  ];
+  fields.forEach((name) => {
+    form.elements[name].value = configuration?.[name] || "";
+  });
+  context.hidden = !configuration;
+  if (configuration) line.textContent = configurationLine(configuration);
+  if (type === "property") {
+    const modelField = form.querySelector("#property-model").closest(".field");
+    modelField.hidden = Boolean(configuration);
+    form.querySelector("#property-model").value =
+      configuration?.productId || form.querySelector("#property-model").value;
+  }
+}
+
+function openProperty(model = "", configuration = null) {
+  const form = document.querySelector("#property-form");
+  const context = configuration?.productId
+    ? configuration
+    : model && currentConfiguration?.productId === model
+      ? currentConfiguration
+      : null;
   document.querySelector("#property-model").value = model || "";
+  applyFormContext(form, context, "property");
   document.querySelector("#source-page").value = location.hash || "home";
   dialog.showModal();
   analytics("property_check_started", {
     model,
+    configuration: context,
     source: location.hash || "home",
   });
   setTimeout(() => document.querySelector("#property-address").focus(), 50);
@@ -729,15 +1151,30 @@ dialog.addEventListener("click", (e) => {
 });
 document.querySelector("#property-form").addEventListener("submit", submitForm);
 const advisorDialog = document.querySelector("#advisor-dialog");
-function openAdvisor() {
+function openAdvisor(configuration = null) {
+  applyFormContext(
+    advisorDialog.querySelector("form"),
+    configuration,
+    "advisor",
+  );
   advisorDialog.showModal();
-  analytics("advisor_request_started", { source: location.hash || "home" });
+  analytics("advisor_request_started", {
+    configuration,
+    source: location.hash || "home",
+  });
 }
 document
   .querySelector(".advisor-close")
   .addEventListener("click", () => advisorDialog.close());
 advisorDialog.addEventListener("click", (e) => {
   if (e.target === advisorDialog) advisorDialog.close();
+});
+document.querySelectorAll("[data-context-change]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const type = button.dataset.contextChange;
+    const form = button.closest("form");
+    applyFormContext(form, null, type);
+  });
 });
 function localEligibility(input) {
   const notes = [];
@@ -820,6 +1257,12 @@ async function submitForm(e) {
           address: data.propertyAddress,
           goal: data.interest,
           modelInterest: data.modelInterest,
+          productId: data.productId,
+          productName: data.productName,
+          styleId: data.styleId,
+          styleName: data.styleName,
+          layoutId: data.layoutId,
+          layoutName: data.layoutName,
           notes: data.notes,
           source: data.sourcePage || "website",
           latitude: data.latitude,

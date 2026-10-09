@@ -64,8 +64,8 @@
       <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
         <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a
         ><a href="#/halifax-eligibility">Halifax Eligibility</a
-        ><a href="#/incentives">Incentives</a
-        ><a href="#/portal">My YardVest login</a><a href="#/admin">Team login</a
+        ><a href="#/incentives">Incentives</a><a href="#/portal">My YardVest</a
+        ><a href="#/admin">Team login</a
         ><button class="advisor-link" data-advisor>Talk to an Expert</button>
         <button class="button button-dark" data-property-check>
           Check My Property
@@ -118,6 +118,17 @@
         </p>
       </div>
       <form id="property-form" data-form="property">
+        <div class="form-context full" data-property-context hidden>
+          <span>YOU’RE CHECKING</span>
+          <strong data-property-context-line></strong>
+          <button type="button" data-context-change="property">Change</button>
+        </div>
+        <input type="hidden" name="productId" />
+        <input type="hidden" name="productName" />
+        <input type="hidden" name="styleId" />
+        <input type="hidden" name="styleName" />
+        <input type="hidden" name="layoutId" />
+        <input type="hidden" name="layoutName" />
         <div class="field full">
           <label for="property-address">Property address *</label
           ><input
@@ -272,6 +283,17 @@
         </p>
       </div>
       <form data-form="advisor">
+        <div class="form-context full" data-advisor-context hidden>
+          <span>YOU’RE ASKING ABOUT</span>
+          <strong data-advisor-context-line></strong>
+          <button type="button" data-context-change="advisor">Change</button>
+        </div>
+        <input type="hidden" name="productId" />
+        <input type="hidden" name="productName" />
+        <input type="hidden" name="styleId" />
+        <input type="hidden" name="styleName" />
+        <input type="hidden" name="layoutId" />
+        <input type="hidden" name="layoutName" />
         <div class="field">
           <label>First name *</label
           ><input name="firstName" autocomplete="given-name" required />
