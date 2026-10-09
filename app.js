@@ -830,6 +830,13 @@ function myYardVestPage() {
   return `<section class="saved-yardvest-hero"><div><span class="eyebrow">MY YARDVEST</span><h1>${saved.productName}</h1><p>${[saved.styleName, saved.layoutName].filter(Boolean).join(" · ")}</p></div><img src="${style.coverImage}" alt="${configurationLine(saved)} exterior"></section><section class="section saved-configuration"><div><span class="eyebrow">YOUR CONFIGURATION</span><h2>This is your YardVest.</h2><p>Saved ${saved.updatedAt ? new Date(saved.updatedAt).toLocaleDateString() : "in this browser"}.</p></div><dl><div><dt>Home</dt><dd>${saved.productName}</dd></div><div><dt>Style</dt><dd>${saved.styleName}</dd></div><div><dt>${model.id === "yv-one" ? "Plan" : model.id === "suite-plus" ? "Levels" : "Layout"}</dt><dd>${layoutLabel}</dd></div><div><dt>Finish</dt><dd>Not selected</dd></div><div><dt>Upgrades</dt><dd>None</dd></div></dl><div class="summary-actions"><a class="button button-accent" href="${editUrl}">View My Design</a><a class="button button-light" href="${editUrl}">Edit Selections</a><button class="button button-dark" data-property-check data-model="${model.id}" data-saved-context>Check My Property</button><button class="button button-light" data-advisor data-saved-context>Talk to an Expert</button></div></section>`;
 }
 function osPage(eyebrow, title, mode) {
+  const operationsUrl = (window.YARDVEST_CONFIG || {}).operationsUrl;
+  if (mode === "admin" && operationsUrl) {
+    const target = new URL(operationsUrl, window.location.origin);
+    if (target.protocol === "https:" || (target.protocol === "http:" && ["localhost", "127.0.0.1"].includes(target.hostname))) {
+      return `<section class="page-hero"><span class="eyebrow">YARDVEST TEAM</span><h1>YardVest Operations</h1><p>Manage enquiries, sales and project delivery.</p><a class="button button-dark" href="${target.href.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}">Open team workspace ↗</a></section>`;
+    }
+  }
   return `<section class="page-hero"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>Secure access to your YardVest journey, documents, appointments and actions.</p></section><section class="os-shell"><form class="os-login" data-os-login><h2>Sign in</h2><div class="field"><label>Email</label><input name="email" type="email" autocomplete="email" required></div><div class="field"><label>Password</label><input name="password" type="password" autocomplete="current-password" required></div><p class="os-error" data-login-error></p><button class="button button-dark" type="submit">Continue securely</button></form><div data-os-root="${mode}"></div></section>`;
 }
 
@@ -1285,9 +1292,9 @@ async function submitForm(e) {
     ...data,
   };
   const config = window.YARDVEST_CONFIG || {};
-  const edgeEndpoint = config.functionsUrl
+  const edgeEndpoint = config.businessIntakeUrl || (config.functionsUrl
     ? `${config.functionsUrl}/${type === "property" ? "lead-intake" : "public-inquiry"}`
-    : "api.php";
+    : "api.php");
   const payload =
     type === "property"
       ? {
@@ -1318,6 +1325,17 @@ async function submitForm(e) {
           servicing: data.servicing,
         }
       : lead;
+  let submission = payload;
+  if (config.businessIntakeUrl) {
+    // Retry the same payload with the same ID; nothing is persisted in browser storage.
+    const { id, createdAt, status, ...fields } = payload;
+    const fingerprint = JSON.stringify({ ...fields, type });
+    if (form._intakeFingerprint !== fingerprint) {
+      form._intakeFingerprint = fingerprint;
+      form._intakeRequestId = crypto.randomUUID();
+    }
+    submission = { ...fields, type, requestId: form._intakeRequestId };
+  }
   let saved = false;
   let responseData = {};
   try {
@@ -1327,7 +1345,7 @@ async function submitForm(e) {
         "Content-Type": "application/json",
         ...(config.supabaseAnonKey ? { apikey: config.supabaseAnonKey } : {}),
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(submission),
     });
     const contentType = res.headers.get("content-type") || "";
     if (res.ok && contentType.includes("application/json")) {
@@ -1343,7 +1361,9 @@ async function submitForm(e) {
     );
     return;
   }
-  analytics(`${type}_submitted`, { id: lead.id });
+  delete form._intakeFingerprint;
+  delete form._intakeRequestId;
+  analytics(`${type}_submitted`, { id: responseData.receiptId || lead.id });
   if (type === "property") {
     const assessment = responseData.assessment || localEligibility(payload);
     const heading =
