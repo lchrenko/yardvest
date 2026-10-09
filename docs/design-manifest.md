@@ -6,10 +6,10 @@ This manifest must be completed from the current approved architectural package 
 
 | Product | Style | Plan variant | Confirmed facts | Asset status |
 |---|---|---|---|---|
-| YardVest One | Modern | Standard | 24′ × 24′ gross footprint; 1 bedroom; 1 full bathroom; mono-pitch/shed roof | Current source files not present in workspace |
-| YardVest One | Coastal | Standard | 24′ × 24′ gross footprint; 1 bedroom; 1 full bathroom; gable roof | Current source files not present in workspace |
-| YardVest Two | Modern | Flex / Second Bath | Two-storey; two-bedroom family | Current source files not present; names require drawing verification |
-| YardVest Two | Coastal | Flex / Second Bath | Two-storey; two-bedroom family | Current source files not present; names require drawing verification |
+| YardVest One | Modern | Standard / enhanced glazing | 24′ × 24′ gross footprint; 1 bedroom; 1 full bathroom; mono-pitch/shed roof | Classified from current supplied asset set |
+| YardVest One | Coastal | Standard | 24′ × 24′ gross footprint; 1 bedroom; 1 full bathroom; gable roof | Classified from current supplied asset set |
+| YardVest Two | Modern | Flex / Second Bath | 24′ × 24′ two-storey family; shared main level; two upper-level options | Classified from current supplied asset set |
+| YardVest Two | Coastal | Flex / Second Bath | 24′ × 24′ two-storey family; shared main level; two upper-level options | Classified from current supplied asset set |
 | Suite Plus | Modern | Standard | 24′ × 24′ two-level footprint; 1-bedroom upper suite; 1 full bathroom; garage below; mono-pitch roof | Classified from current supplied asset set |
 | Suite Plus | Coastal | Standard | 24′ × 24′ two-level footprint; 1-bedroom upper suite; 1 full bathroom; garage below; gable roof | Classified from current supplied asset set |
 
@@ -34,6 +34,32 @@ All files below are stored unchanged under `assets/suite-plus/`. The product att
 | `plan2.png` | Neutral | Standard | Upper suite | Dimensioned floor plan | 1 / 1 | 24′ × 24′ gross upper footprint (576 sq. ft.) | Open kitchen/dining/living; pantry; laundry; storage | High | No |
 
 The 576 sq. ft. value is a gross upper-level footprint. It must not be presented as verified net interior living area without final measured drawings.
+
+## YardVest Two asset registry — supplied October 8, 2026
+
+| Source filename(s) | Classification | Confirmed visible content | Confidence / review |
+|---|---|---|---|
+| `1002_13.png`–`1002_16.png` | Modern exterior renderings | Two-storey massing; low-slope roof language | High / no |
+| `1002_9.png`–`1002_12.png` | Coastal exterior renderings | Two-storey massing; gable roof and board-and-batten accents | High / no |
+| `0930_1.png` | Main-level plan | 24′ × 24′; bedroom; full bathroom; open kitchen/dining/living | High / no |
+| `0930_2.png` | Flex upper plan | Two private upper rooms around central stair | High / room classification requires code review |
+| `0930_3.png` | Second Bath upper plan | One upper bedroom and one full bathroom | High / public option label remains working name |
+| `1003_1.png` | Main-level furnished rendering | Bedroom, full bathroom, laundry and open living area | High / no |
+| `1003_2.png` | Flex furnished rendering | Two furnished private upper rooms | High / room classification requires code review |
+| `1003_3.png` | Second Bath furnished rendering | Upper bedroom and full bathroom | High / no |
+
+## YardVest One asset registry — supplied October 8, 2026
+
+| Source filename(s) | Classification | Confirmed visible content | Confidence / review |
+|---|---|---|---|
+| `1.png`–`4.png`, `0927_1.png`–`0927_4.png` | Modern exterior renderings | Low-slope/mono-pitch roof; horizontal siding | High / no |
+| `11.png`–`14.png` | Coastal exterior renderings | Gable roof; board-and-batten gable accent | High / no |
+| `5.png`, `6.png` | Furnished plan renderings | One bedroom; full bathroom; open kitchen/dining/living; laundry/storage | High / no |
+| `FLOOR_PLAN_0926.png` | Dimensioned plan | Current 24′ × 24′ plan; one bedroom and one full bathroom | High / no |
+| `0924_1.png`–`0924_4.png` | Coastal exterior option | Landscaped foundation/entry presentation | High / no |
+| `0924_5.png`–`0924_8.png` | Modern enhanced-glazing option | Clerestory/high-level glazing; dark window frames; wood soffit/deck treatment | High / no |
+
+Duplicate visual files are retained in source storage when the supplied filenames differ, but the public gallery avoids showing obvious duplicates.
 
 ## Required classification fields
 

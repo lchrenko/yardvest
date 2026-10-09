@@ -27,4 +27,15 @@ Alternative terminal/holding stages: `nurture`, `not_eligible`, `lost`, `cancell
 - E-signature: provider adapter; no simulated legal signature.
 - Scheduling: native availability schema first, isolated so a third-party scheduler can be substituted.
 
-The existing static site can express corrected public content, but production Project OS work requires a server-backed application and configured Supabase/Stripe environments.
+## Implemented foundation
+
+- Public property intake creates linked contact, property, lead and project records.
+- Advisor and partner inquiries enter central staff queues.
+- Customer and staff views authenticate with Supabase and rely on RLS.
+- Consultation booking rejects duplicate advisor/start-time reservations.
+- Stripe Checkout uses server-created sessions; signed, idempotent webhooks update payment and project state.
+- Transactional email is sent server-side through Resend.
+- Product catalog seeds YardVest One, YardVest Two and Suite Plus with Modern/Coastal styles.
+- Automated tests cover validation, project-stage transitions, webhook signatures, asset integrity and the no-localStorage rule.
+
+Production activation still requires a Supabase project and deployment secrets. Legal e-signature remains an integration boundary: contract records and status tracking are implemented in the schema, but a production e-sign provider must be selected and configured before contracts can be legally signed online.
