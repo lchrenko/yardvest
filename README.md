@@ -47,3 +47,17 @@ npm run check
 ## Asset note
 
 Current YardVest One, YardVest Two and Suite Plus renderings and plans are stored in `assets/` and classified in `docs/design-manifest.md`. Published area language distinguishes gross footprint from verified net living area.
+
+## Independent operations backend
+
+The adapted Project OS lives in the private `lchrenko/yardvest-backend` repository.
+After its new Supabase deployment is verified, set `businessIntakeUrl` in
+`config.js` to its `business-intake` function, `businessIntakePublishableKey` to that new
+project's public key, and `operationsUrl` to the staff app.
+Property, advisor and partner forms will then use that endpoint, retaining a
+request ID across retries. With those values empty, the existing paths remain.
+
+Do not change the existing `supabaseUrl` / `functionsUrl` to the new Project OS
+project: customer portal, chat, scheduling and payments still use the original
+YardVest schema and require separate migration. The Project OS schema cannot be
+applied over the website schema. No production endpoint is configured by this change.
