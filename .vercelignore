@@ -1,0 +1,14 @@
+.git
+.github
+.env*
+node_modules
+dist
+tmp
+output
+docs
+tests
+supabase
+api.php
+README.md
+tools/build_yardvest_presentation_pdf.py
+tools/generate_yardvest_plans.js

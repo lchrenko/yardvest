@@ -2,3 +2,8 @@
 /output/
 /tmp/
 .DS_Store
+/dist/
+/.vercel/
+/node_modules/
+.vercel
+.env*
