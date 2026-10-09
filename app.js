@@ -329,6 +329,52 @@ const models = [
     visible: true,
   },
 ];
+// Product families own their architectural styles. Plans remain a separate
+// decision so a visitor never mistakes Modern/Coastal for different homes.
+models.forEach((model) => {
+  const flatGallery = model.gallery || [];
+  const descriptions = {
+    Modern:
+      "A contemporary expression with a low-slope roof, clean lines and generous glazing.",
+    Coastal:
+      "A familiar gable-roof expression with warm residential proportions and detailing.",
+  };
+  model.styles = ["Modern", "Coastal"].map((name) => {
+    const gallery = flatGallery.filter((image) =>
+      image.style.toLowerCase().startsWith(name.toLowerCase()),
+    );
+    return {
+      id: name.toLowerCase(),
+      name,
+      description: descriptions[name],
+      coverImage: gallery[0]?.src || model.coverImage,
+      gallery,
+    };
+  });
+  delete model.gallery;
+  if (model.id === "yv-two") {
+    model.planVariants = [
+      {
+        id: "flex",
+        name: "Flex",
+        description: "Two private rooms on the upper level.",
+        floorPlans: model.floorPlans.filter(
+          (plan) =>
+            /main level|flex/i.test(plan.label) &&
+            !/second bath/i.test(plan.label),
+        ),
+      },
+      {
+        id: "second-bath",
+        name: "Second Bath",
+        description: "One upper bedroom with an additional full bathroom.",
+        floorPlans: model.floorPlans.filter((plan) =>
+          /main level|second bath/i.test(plan.label),
+        ),
+      },
+    ];
+  }
+});
 const finishPackages = [
   {
     id: "light",
@@ -424,8 +470,15 @@ const analytics = (event, detail = {}) => {
   window.yardVestEvents = window.yardVestEvents || [];
   window.yardVestEvents.push({ event, detail, at: new Date().toISOString() });
 };
-const art = (extra = "") =>
-  `<div class="architectural-scene ${extra}" role="img" aria-label="Conceptual architectural illustration of a modern shed-roof backyard home"><span class="scene-sun"></span><span class="scene-home"></span><span class="scene-deck"></span><span class="scene-tree"></span><span class="scene-caption">CONCEPTUAL VIEW · FINAL IMAGERY TO COME</span></div>`;
+const pairedImages = (model, extra = "") =>
+  `<div class="paired-images ${extra}">${model.styles
+    .map(
+      (style) =>
+        `<a href="#/homes/${model.slug}?style=${style.id}" class="paired-image"><img src="${style.coverImage}" alt="${model.name} ${style.name} exterior" loading="${extra.includes("hero") ? "eager" : "lazy"}"><span>${model.name} · ${style.name}</span></a>`,
+    )
+    .join("")}</div>`;
+const productShowcase = (m) =>
+  `<article class="product-showcase"><div class="product-showcase-copy"><span class="eyebrow">${m.name.toUpperCase()}</span><h3>${m.tagline}</h3><p>${m.shortDescription}</p><div class="specs">${m.id === "yv-one" ? "24′ × 24′ · 1 BED · 1 BATH" : m.id === "yv-two" ? "24′ × 24′ · TWO STOREYS · 2 LAYOUTS" : "24′ × 24′ · 1 BED · GARAGE"}</div><a class="text-link" href="#/homes/${m.slug}">Explore ${m.name} <span>↗</span></a></div>${pairedImages(m)}</article>`;
 const card = (m) =>
   `<article class="home-card"><a href="#/homes/${m.slug}" aria-label="Explore ${m.name}"><div class="home-visual">${m.coverImage ? `<img class="home-cover" src="${m.coverImage}" alt="${m.name} exterior" loading="lazy">` : '<span class="mini-home"></span>'}<span class="status">MODERN + COASTAL</span></div><div class="home-card-body"><h3>${m.name}</h3><div class="specs">${m.id === "yv-one" ? "24′ × 24′ · 1 BED · 1 BATH" : m.id === "yv-two" ? "24′ × 24′ · TWO STOREYS · 2 OPTIONS" : "24′ × 24′ · 1 BED · GARAGE"}</div><p>${m.shortDescription}</p><span class="text-link">Explore ${m.name} <span>↗</span></span></div></a></article>`;
 const faqMarkup = (limit = faqs.length) =>
@@ -437,8 +490,8 @@ const faqMarkup = (limit = faqs.length) =>
     )
     .join("")}</div>`;
 function home() {
-  return `<section class="hero"><div class="hero-copy"><span class="eyebrow">BACKYARD INCOME HOMES</span><h1>Your yard.<br><em>Your income.</em></h1><p>Turn unused backyard space into a beautifully designed income home. YardVest makes it simple—from finding out what fits and what it could rent for to consultation, permits, construction and delivery.</p><div class="hero-actions"><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Advisor</button><a class="text-link" href="#/homes">Explore the Homes</a></div></div>${art()}</section>
-<section class="section" id="homes"><div class="section-head"><div><span class="eyebrow">THREE HOMES. ONE SIMPLE PROCESS.</span><h2>Simple homes.<br>Designed beautifully.</h2></div><p>Choose from a small collection of thoughtful backyard homes. We’ll help determine which one is right for your property.</p></div><div class="homes-grid">${models.map(card).join("")}</div></section>
+  return `<section class="hero"><div class="hero-copy"><span class="eyebrow">BACKYARD INCOME HOMES</span><h1>Your yard.<br><em>Your income.</em></h1><p>Turn unused backyard space into a beautifully designed income home. YardVest makes it simple—from finding out what fits and what it could rent for to consultation, permits, construction and delivery.</p><div class="hero-actions"><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button><a class="text-link" href="#/homes">Explore the Homes</a></div></div>${pairedImages(models[0], "paired-hero")}</section>
+<section class="section" id="homes"><div class="section-head"><div><span class="eyebrow">THE YARDVEST COLLECTION</span><h2>Three homes.<br>Two styles.</h2></div><p>Every YardVest family is available in Modern and Coastal. Choose the home first, then the architectural language you prefer.</p></div><div class="product-showcase-list">${models.map(productShowcase).join("")}</div></section>
 <section class="address-band"><div><h2>Start with your property.</h2><p>One address is enough to begin.</p></div><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button></section>
 <section class="section dark-section" id="process"><div class="section-head"><div><span class="eyebrow">HOW YARDVEST WORKS</span><h2>One clear path<br>from yard to home.</h2></div><p>Understand the opportunity, speak with a real person, choose your YardVest and move forward through one coordinated process.</p></div><div class="steps">${[
     [
@@ -448,7 +501,7 @@ function home() {
     ],
     [
       "02",
-      "Talk to an advisor",
+      "Talk to an expert",
       "Review the property, economics, designs, financing and incentives.",
     ],
     [
@@ -467,7 +520,7 @@ function home() {
         `<article class="step"><span>${s[0]}</span><h3>${s[1]}</h3><p>${s[2]}</p></article>`,
     )
     .join("")}</div></section>
-<section class="split"><div class="asset-graphic"></div><div class="split-copy"><span class="eyebrow">THE OPPORTUNITY</span><h2>Put your backyard to work.</h2><p>A well-designed backyard home can turn unused land into a productive asset—creating potential rental income, useful housing and long-term property utility.</p><p>Every property and market is different. We start with fit before discussing project-specific numbers.</p><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button></div></section>
+<section class="split"><div class="split-images">${pairedImages(models[1])}</div><div class="split-copy"><span class="eyebrow">THE OPPORTUNITY</span><h2>Put your backyard to work.</h2><p>A well-designed backyard home can turn unused land into a productive asset—creating potential rental income, useful housing and long-term property utility.</p><p>Every property and market is different. We start with fit before discussing project-specific numbers.</p><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button></div></section>
 <section class="section"><div class="incentive-panel"><div class="incentive-mark"><span>$</span></div><div class="incentive-copy"><span class="eyebrow">INCENTIVES & FINANCING</span><h3>There may be help available.</h3><p>Depending on your property, location and intended use, government incentives or financing programs may be available for secondary or backyard housing. YardVest can help identify programs that may apply.</p><p class="fine-print">Programs, eligibility and funding availability can change. Final eligibility is determined by the applicable government or funding provider.</p><a class="text-link" href="#/incentives">Explore incentives <span>↗</span></a></div></div></section>
 <section class="section"><div class="section-head"><div><span class="eyebrow">WHY YARDVEST</span><h2>Designed for less friction.</h2></div></div><div class="why-grid">${[
     [
@@ -498,12 +551,12 @@ function home() {
     .join("")}</div></section>
 <section class="partner-strip"><div><span class="eyebrow">BUILDERS & PARTNERS</span><h2>Build with YardVest.</h2><p>We’re developing a network of experienced partners who can deliver standardized YardVest homes with a consistent process.</p></div><a class="button button-light" href="#/builders">Become a Partner <span>↗</span></a></section>
 <section class="section"><div class="section-head"><div><span class="eyebrow">COMMON QUESTIONS</span><h2>A clearer way to add a home.</h2></div><a class="text-link" href="#/faq">View all questions ↗</a></div>${faqMarkup(5)}</section>
-<section class="final-cta"><span class="eyebrow">YOUR PROPERTY IS THE START</span><h2>Ready to see what your yard could become?</h2><div class="hero-actions"><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Advisor</button></div></section>`;
+<section class="final-cta"><span class="eyebrow">YOUR PROPERTY IS THE START</span><h2>Ready to see what your yard could become?</h2><div class="hero-actions"><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></section>`;
 }
 function homesPage() {
-  return `<section class="page-hero"><span class="eyebrow">THE YARDVEST COLLECTION</span><h1>A few great homes. Nothing extra.</h1><p>Thoughtful, repeatable designs for rental income, family housing and additional living space.</p></section><section class="section"><div class="homes-grid">${models.map(card).join("")}</div></section><section class="final-cta"><h2>Find the home that fits your yard.</h2><button class="button button-dark" data-property-check>Check My Property ↗</button></section>`;
+  return `<section class="page-hero"><span class="eyebrow">THE YARDVEST COLLECTION</span><h1>Three homes. Two styles.</h1><p>Choose a product family, then compare its Modern and Coastal architecture side by side.</p></section><section class="section"><div class="product-showcase-list">${models.map(productShowcase).join("")}</div></section><section class="final-cta"><h2>Find the home that fits your yard.</h2><button class="button button-dark" data-property-check>Check My Property ↗</button></section>`;
 }
-function modelPage(m) {
+function modelPage(m, params = new URLSearchParams()) {
   analytics("model_viewed", { model: m.id });
   const specs =
     m.id === "yv-one"
@@ -511,16 +564,20 @@ function modelPage(m) {
       : m.id === "yv-two"
         ? "24′ × 24′ FOOTPRINT · TWO STOREYS · FLEX OR SECOND BATH"
         : "24′ × 24′ FOOTPRINT · 1 BED · 1 BATH · GARAGE";
-  const hero = m.coverImage
-    ? `<img class="model-cover" src="${m.coverImage}" alt="${m.name} exterior" fetchpriority="high">`
-    : art();
-  const media = m.gallery?.length
-    ? `<div class="gallery-grid">${m.gallery.map((image, i) => `<figure class="${i === 0 ? "gallery-featured" : ""}"><img src="${image.src}" alt="${image.alt}" loading="${i < 2 ? "eager" : "lazy"}"><figcaption>${image.style}</figcaption></figure>`).join("")}</div>`
-    : `<div class="floorplan-shell"><div class="floorplan-placeholder"><svg viewBox="0 0 600 400" aria-label="Approved floor plan asset pending"><rect x="30" y="30" width="540" height="340"/><path d="M310 30v340M30 235h280M310 210h260M150 235v135M450 210v160M310 110h140M390 110v100"/></svg><p>CURRENT ARCHITECTURAL ASSETS PENDING</p></div></div>`;
-  const plans = m.floorPlans?.length
-    ? `<section class="section"><div class="section-head"><div><span class="eyebrow">PLANS</span><h2>${m.planTitle || "Two levels. One efficient footprint."}</h2></div><p>${m.planDescription || "Review the current plans and furnished views."}</p></div><div class="plan-grid">${m.floorPlans.map((plan) => `<figure class="plan-card"><img src="${plan.src}" alt="${plan.alt}" loading="lazy"><figcaption>${plan.label}</figcaption></figure>`).join("")}</div></section>`
+  const selectedStyle =
+    m.styles.find((style) => style.id === params.get("style")) || m.styles[0];
+  const selectedVariant =
+    m.planVariants?.find((variant) => variant.id === params.get("layout")) ||
+    m.planVariants?.[0];
+  const query = (styleId, layoutId = selectedVariant?.id) =>
+    `#/homes/${m.slug}?style=${styleId}${layoutId ? `&layout=${layoutId}` : ""}`;
+  const hero = `<img class="model-cover" src="${selectedStyle.coverImage}" alt="${m.name} ${selectedStyle.name} exterior" fetchpriority="high">`;
+  const media = `<div class="gallery-grid">${selectedStyle.gallery.map((image, i) => `<figure class="${i === 0 ? "gallery-featured" : ""}"><img src="${image.src}" alt="${image.alt}" loading="${i < 2 ? "eager" : "lazy"}"><figcaption>${image.style}</figcaption></figure>`).join("")}</div>`;
+  const planSet = selectedVariant?.floorPlans || m.floorPlans;
+  const plans = planSet?.length
+    ? `<section class="section"><div class="section-head"><div><span class="eyebrow">PLANS</span><h2>${m.planTitle || "Two levels. One efficient footprint."}</h2></div><p>${m.planDescription || "Review the current plans and furnished views."}</p></div>${m.planVariants ? `<div class="choice-tabs" aria-label="Choose layout">${m.planVariants.map((variant) => `<a class="choice-tab ${variant.id === selectedVariant.id ? "active" : ""}" href="${query(selectedStyle.id, variant.id)}"><strong>${variant.name}</strong><span>${variant.description}</span></a>`).join("")}</div>` : ""}<div class="plan-grid">${planSet.map((plan) => `<figure class="plan-card"><img src="${plan.src}" alt="${plan.alt}" loading="lazy"><figcaption>${plan.label}</figcaption></figure>`).join("")}</div></section>`
     : "";
-  return `<section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME</span><h1>${m.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${m.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${m.id}">Check Eligibility & Rent Potential <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Advisor</button></div></div><div class="model-art">${hero}</div></section><section class="section"><div class="section-head"><div><span class="eyebrow">AT A GLANCE</span><h2>${m.tagline}</h2></div><p>${m.shortDescription}</p></div><ul class="feature-list">${m.features.map((f) => `<li>${f}</li>`).join("")}</ul></section><section class="section dark-section"><div class="section-head"><div><span class="eyebrow">MODERN + COASTAL</span><h2>One YardVest.<br>Two architectural languages.</h2></div><p>${m.gallery?.length ? "Choose the low-slope Modern expression or the gable-roof Coastal expression. Both remain options within the same YardVest family." : "Current renderings and plans will be added after the supplied design package is classified and approved."}</p></div>${media}</section>${plans}<section class="final-cta"><h2>Could ${m.name} fit your property?</h2><button class="button button-dark" data-property-check data-model="${m.id}">Check Eligibility & Rent Potential ↗</button></section>`;
+  return `<section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · ${selectedStyle.name.toUpperCase()}</span><h1>${m.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${m.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${m.id}">Check Eligibility & Rent Potential <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art">${hero}</div></section><section class="section style-section"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>Modern or Coastal.</h2></div><p>Same YardVest family and plan philosophy, expressed through two distinct architectural languages.</p></div><div class="style-choices">${m.styles.map((style) => `<a class="style-choice ${style.id === selectedStyle.id ? "active" : ""}" href="${query(style.id)}"><img src="${style.coverImage}" alt="${m.name} ${style.name}"><div><strong>${style.name}</strong><p>${style.description}</p><span>${style.id === selectedStyle.id ? "Selected" : "View style"} ↗</span></div></a>`).join("")}</div><nav class="style-tabs" aria-label="Selected architectural style">${m.styles.map((style) => `<a class="${style.id === selectedStyle.id ? "active" : ""}" href="${query(style.id)}">${style.name}</a>`).join("")}</nav></section><section class="section"><div class="section-head"><div><span class="eyebrow">${selectedStyle.name.toUpperCase()}</span><h2>${selectedStyle.name} from every angle.</h2></div><p>${selectedStyle.description}</p></div>${media}</section><section class="section"><div class="section-head"><div><span class="eyebrow">AT A GLANCE</span><h2>${m.tagline}</h2></div><p>${m.shortDescription}</p></div><ul class="feature-list">${m.features.map((f) => `<li>${f}</li>`).join("")}</ul></section>${plans}<section class="final-cta"><h2>Could ${m.name} fit your property?</h2><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${m.id}">Check Eligibility & Rent Potential ↗</button><button class="button button-light" data-advisor>Talk to an Expert</button></div></section>`;
 }
 const pages = {
   "how-it-works": () =>
@@ -557,6 +614,36 @@ const pages = {
     `<section class="page-hero"><span class="eyebrow">INCENTIVES & FINANCING</span><h1>Support may be closer than you think.</h1><p>Some programs support secondary and backyard housing. We keep claims careful and help identify what may apply to your location and intended use.</p></section><article class="content-page"><h2>How we approach incentives</h2><p>Programs differ by jurisdiction and may involve grants, low-cost loans, fee relief or other support. YardVest can help identify relevant programs during property review, but does not determine eligibility.</p><h2>No universal promises</h2><p>Programs, eligibility and funding availability can change. Final eligibility is determined by the applicable government or funding provider.</p><button class="button button-dark" data-property-check>Check My Property ↗</button></article>`,
   faq: () =>
     `<section class="page-hero"><span class="eyebrow">FAQ</span><h1>Good questions deserve clear answers.</h1></section><section class="section">${faqMarkup()}</section>`,
+  "halifax-eligibility": () =>
+    `<section class="page-hero eligibility-hero"><span class="eyebrow">HALIFAX REGIONAL MUNICIPALITY</span><h1>Could your property support a backyard suite?</h1><p>Answer a few property questions for a preliminary screen, then a YardVest expert reviews the address, applicable land-use by-law, setbacks, lot coverage, servicing and permit requirements.</p><div class="hero-actions"><button class="button button-dark" data-property-check>Check My Property ↗</button><button class="button button-light" data-advisor>Talk to an Expert</button></div></section><section class="section eligibility-evidence"><div class="section-head"><div><span class="eyebrow">WHAT THE SCREEN CHECKS</span><h2>Useful first signals.<br>Never a permit promise.</h2></div><p>HRM is divided among multiple land-use by-laws. Final eligibility depends on the exact property and municipal review.</p></div><div class="why-grid">${[
+      [
+        "01",
+        "Residential context",
+        "Backyard suites are broadly enabled with specified residential dwelling types, subject to the applicable zone.",
+      ],
+      [
+        "02",
+        "One suite per lot",
+        "An existing secondary, garden or backyard suite may affect eligibility.",
+      ],
+      [
+        "03",
+        "Safe access",
+        "Current HRM provisions commonly require an unobstructed same-lot route at least 1.1 m wide.",
+      ],
+      [
+        "04",
+        "Site and services",
+        "Setbacks, lot coverage, grading, water/wastewater or septic capacity, building code and permits still require review.",
+      ],
+    ]
+      .map(
+        (x) =>
+          `<article class="why-item"><span>${x[0]}</span><h3>${x[1]}</h3><p>${x[2]}</p></article>`,
+      )
+      .join(
+        "",
+      )}</div><p class="source-note">Sources: <a href="https://cdn.halifax.ca/sites/default/files/documents/business/planning-development/2024.01-backyard-suites-v1.01.pdf" target="_blank" rel="noopener">HRM Backyard Suites guide</a>, <a href="https://www.halifax.ca/home-property/building-development-permits/relatedadditional-permits" target="_blank" rel="noopener">HRM permit guidance</a>, and the <a href="https://www.novascotia.ca/sites/default/files/documents/1-3589/secondary-and-backyard-suite-incentive-program-guide-en.pdf" target="_blank" rel="noopener">Nova Scotia incentive program guide</a>.</p></section>`,
   about: () =>
     `<section class="page-hero"><span class="eyebrow">ABOUT YARDVEST</span><h1>Better use of the space you already own.</h1></section><article class="content-page"><p>YardVest was created around a simple idea: many homeowners already own enough land to create another useful home.</p><p>By combining thoughtful standardized design with a simpler planning and construction process, YardVest aims to make backyard housing easier to understand, build and operate.</p><h2>Three homes. One simple process. Your property.</h2></article>`,
   builders: () =>
@@ -599,12 +686,14 @@ function bind() {
 }
 function route() {
   const raw = location.hash.replace(/^#\/?/, "") || "";
-  const parts = raw.split("/").filter(Boolean);
+  const [path, query = ""] = raw.split("?");
+  const params = new URLSearchParams(query);
+  const parts = path.split("/").filter(Boolean);
   let html;
   if (!parts.length) html = home();
   else if (parts[0] === "homes" && parts[1]) {
     const m = models.find((x) => x.slug === parts[1]);
-    html = m ? modelPage(m) : homesPage();
+    html = m ? modelPage(m, params) : homesPage();
   } else if (parts[0] === "homes") html = homesPage();
   else
     html = (
@@ -630,6 +719,7 @@ function openProperty(model = "") {
     source: location.hash || "home",
   });
   setTimeout(() => document.querySelector("#property-address").focus(), 50);
+  window.initYardVestMaps?.();
 }
 document
   .querySelector(".dialog-close")
@@ -649,6 +739,61 @@ document
 advisorDialog.addEventListener("click", (e) => {
   if (e.target === advisorDialog) advisorDialog.close();
 });
+function localEligibility(input) {
+  const notes = [];
+  let status = "promising";
+  const location =
+    `${input.address || ""} ${input.locality || ""}`.toLowerCase();
+  if (
+    !/halifax|dartmouth|bedford|sackville|cole harbour|timberlea|tantallon|fall river|hammonds plains|spryfield/.test(
+      location,
+    )
+  ) {
+    status = "outside_hrm_scope";
+    notes.push(
+      "The address was not automatically confirmed as being in Halifax Regional Municipality.",
+    );
+  }
+  if (
+    !["single", "semi", "duplex", "row", "apartment3"].includes(
+      input.dwellingType,
+    )
+  ) {
+    if (status === "promising") status = "expert_review";
+    notes.push(
+      "The existing dwelling type needs confirmation against the applicable land-use by-law.",
+    );
+  }
+  if (input.existingSuite !== "no") {
+    if (status === "promising") status = "expert_review";
+    notes.push(
+      "HRM generally permits only one secondary, garden or backyard suite on a lot; existing units need review.",
+    );
+  }
+  if (input.accessWidth !== "yes") {
+    if (status === "promising") status = "expert_review";
+    notes.push(
+      "A clear same-lot access route, generally at least 1.1 m wide, must be confirmed.",
+    );
+  }
+  if (
+    !input.servicing ||
+    input.servicing === "unknown" ||
+    input.servicing === "septic"
+  ) {
+    if (status === "promising") status = "expert_review";
+    notes.push(
+      input.servicing === "septic"
+        ? "On-site sewage capacity requires confirmation."
+        : "Water and wastewater servicing must be confirmed.",
+    );
+  }
+  if (!notes.length)
+    notes.push(
+      "Your answers align with several common HRM criteria, subject to property-specific review and permits.",
+    );
+  return { status, notes };
+}
 async function submitForm(e) {
   e.preventDefault();
   const form = e.currentTarget;
@@ -677,9 +822,20 @@ async function submitForm(e) {
           modelInterest: data.modelInterest,
           notes: data.notes,
           source: data.sourcePage || "website",
+          latitude: data.latitude,
+          longitude: data.longitude,
+          locality: data.locality,
+          province: data.province,
+          postalCode: data.postalCode,
+          country: data.country,
+          dwellingType: data.dwellingType,
+          existingSuite: data.existingSuite,
+          accessWidth: data.accessWidth,
+          servicing: data.servicing,
         }
       : lead;
   let saved = false;
+  let responseData = {};
   try {
     const res = await fetch(edgeEndpoint, {
       method: "POST",
@@ -691,8 +847,8 @@ async function submitForm(e) {
     });
     const contentType = res.headers.get("content-type") || "";
     if (res.ok && contentType.includes("application/json")) {
-      const result = await res.json();
-      saved = result.ok === true;
+      responseData = await res.json();
+      saved = responseData.ok === true;
     }
   } catch (error) {
     console.error("Submission failed", error);
@@ -705,11 +861,22 @@ async function submitForm(e) {
   }
   analytics(`${type}_submitted`, { id: lead.id });
   if (type === "property") {
-    dialog.innerHTML = `<div class="success-state"><span class="eyebrow">PROPERTY RECEIVED</span><h2>We’ve got your property.</h2><p>We’ll review what may fit and include rent potential when reliable data is available.</p><button class="button button-dark" onclick="document.querySelector('#property-dialog').close()">Done</button></div>`;
+    const assessment = responseData.assessment || localEligibility(payload);
+    const heading =
+      assessment.status === "promising"
+        ? "Your property looks promising."
+        : assessment.status === "outside_hrm_scope"
+          ? "We need to confirm the municipality."
+          : "Your property needs expert review.";
+    dialog.innerHTML = `<div class="success-state eligibility-result"><span class="eyebrow">PRELIMINARY SCREEN</span><h2>${heading}</h2><p>This is an initial screen—not zoning approval. A YardVest expert will verify the applicable by-law, lot coverage, setbacks, servicing and permits.</p><ul>${assessment.notes.map((note) => `<li>${note}</li>`).join("")}</ul><div class="hero-actions"><button class="button button-dark" data-result-expert>Talk to an Expert</button><button class="button button-light" onclick="document.querySelector('#property-dialog').close()">Done</button></div></div>`;
+    dialog.querySelector("[data-result-expert]").onclick = () => {
+      dialog.close();
+      openAdvisor();
+    };
   } else if (type === "advisor") {
     advisorDialog.close();
     form.reset();
-    showToast("Thanks—a YardVest Advisor request has been created.");
+    showToast("Thanks—a YardVest expert callback request has been created.");
   } else {
     form.reset();
     showToast("Thanks—your partner inquiry has been received.");

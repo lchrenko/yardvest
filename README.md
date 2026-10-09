@@ -12,7 +12,10 @@ Then visit `http://localhost:8080`.
 
 Editable models, finish packages, upgrades, future markets, FAQs and analytics events live near the top of `app.js`. Models support nullable specifications so conceptual designs never show fabricated values. Finish packages and future upgrades can be activated later without adding a configurator.
 
-Public forms use Supabase Edge Functions when `config.js` contains the public project URL, anonymous key and Functions URL. `api.php` remains a local-only development fallback. Production lead data is never stored in browser `localStorage`.
+Public forms use Supabase Edge Functions when `config.js` contains the public project URL, anonymous key and Functions URL. Add a browser-restricted Google Maps JavaScript API key to `googleMapsApiKey` for address autocomplete and the map preview. `api.php` remains a local-only development fallback. Production lead data is never stored in browser `localStorage`.
+
+- Customer login: `#/portal`
+- YardVest team login: `#/admin`
 
 ## Project OS
 
@@ -27,11 +30,12 @@ STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 RESEND_API_KEY
 EMAIL_FROM
+EXPERT_EMAIL
 PUBLIC_SITE_URL
 PUBLIC_SITE_ORIGIN
 ```
 
-Deploy functions with the Supabase CLI, then configure `config.js` with public values only. Never place service-role, Stripe or Resend secrets in frontend files.
+Deploy functions with the Supabase CLI, then configure `config.js` with public values only. The live chat gives each anonymous browser a hashed visitor session, polls for expert replies, and exposes the reply queue to authenticated staff in Project OS. Never place service-role, Stripe or Resend secrets in frontend files.
 
 Run verification:
 

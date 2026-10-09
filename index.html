@@ -1,79 +1,368 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f1f0e9">
-  <title>YardVest — Backyard Income Homes</title>
-  <meta name="description" content="Turn unused backyard space into a beautifully designed home. YardVest helps with feasibility, design, permits and construction.">
-  <meta property="og:title" content="YardVest — Your yard. Your income.">
-  <meta property="og:description" content="A small collection of thoughtfully designed backyard homes and one simple process.">
-  <meta property="og:type" content="website">
-  <link rel="canonical" href="/">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"YardVest","description":"Backyard Income Homes"}</script>
-</head>
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header" id="site-header">
-    <a class="brand" href="#/" aria-label="YardVest home">
-      <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 17 22 7l16 10v20H6Z"/><path d="m6 17 16 10 16-10M22 27v10"/></svg>
-      <span>YardVest<small>BACKYARD INCOME HOMES</small></span>
-    </a>
-    <nav class="desktop-nav" aria-label="Main navigation">
-      <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a>
-    </nav>
-    <div class="header-actions"><button class="advisor-link" data-advisor>Talk to an Advisor</button><button class="button button-dark" data-property-check>Check My Property <span>↗</span></button></div>
-    <button class="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"><span></span><span></span></button>
-    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
-      <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a><a href="#/builders">Builders</a><button class="advisor-link" data-advisor>Talk to an Advisor</button>
-      <button class="button button-dark" data-property-check>Check My Property</button>
-    </nav>
-  </header>
-  <main id="main" tabindex="-1"></main>
-  <footer class="site-footer">
-    <div class="footer-lead"><a class="brand brand-light" href="#/"><span>YardVest<small>BACKYARD INCOME HOMES</small></span></a><p>Your yard.<br>Your income.</p></div>
-    <div class="footer-links"><div><strong>Explore</strong><a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a></div><div><strong>Company</strong><a href="#/about">About</a><a href="#/builders">Builders & Partners</a><a href="#/contact">Contact</a></div><div><strong>Access</strong><a href="#/portal">My YardVest</a><a href="#/admin">Team login</a><a href="#/privacy">Privacy</a><a href="#/terms">Terms</a></div></div>
-    <div class="footer-bottom"><span>© <span id="year"></span> YardVest</span><span>A few great homes. A few smart choices.</span></div>
-  </footer>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f1f0e9" />
+    <title>YardVest — Backyard Income Homes</title>
+    <meta
+      name="description"
+      content="Turn unused backyard space into a beautifully designed home. YardVest helps with feasibility, design, permits and construction."
+    />
+    <meta property="og:title" content="YardVest — Your yard. Your income." />
+    <meta
+      property="og:description"
+      content="A small collection of thoughtfully designed backyard homes and one simple process."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href="/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "YardVest",
+        "description": "Backyard Income Homes"
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" id="site-header">
+      <a class="brand" href="#/" aria-label="YardVest home">
+        <svg viewBox="0 0 44 44" aria-hidden="true">
+          <path d="M6 17 22 7l16 10v20H6Z" />
+          <path d="m6 17 16 10 16-10M22 27v10" />
+        </svg>
+        <span>YardVest<small>BACKYARD INCOME HOMES</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a
+        ><a href="#/halifax-eligibility">Halifax Eligibility</a
+        ><a href="#/portal">My YardVest</a>
+      </nav>
+      <div class="header-actions">
+        <button class="advisor-link" data-advisor>Talk to an Expert</button
+        ><button class="button button-dark" data-property-check>
+          Check My Property <span>↗</span>
+        </button>
+      </div>
+      <button
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label="Open menu"
+      >
+        <span></span><span></span>
+      </button>
+      <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+        <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a
+        ><a href="#/halifax-eligibility">Halifax Eligibility</a
+        ><a href="#/incentives">Incentives</a
+        ><a href="#/portal">My YardVest login</a><a href="#/admin">Team login</a
+        ><button class="advisor-link" data-advisor>Talk to an Expert</button>
+        <button class="button button-dark" data-property-check>
+          Check My Property
+        </button>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="site-footer">
+      <div class="footer-lead">
+        <a class="brand brand-light" href="#/"
+          ><span>YardVest<small>BACKYARD INCOME HOMES</small></span></a
+        >
+        <p>Your yard.<br />Your income.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <strong>Explore</strong><a href="#/homes">Homes</a
+          ><a href="#/how-it-works">How It Works</a
+          ><a href="#/incentives">Incentives</a><a href="#/faq">FAQ</a>
+        </div>
+        <div>
+          <strong>Company</strong><a href="#/about">About</a
+          ><a href="#/builders">Builders & Partners</a
+          ><a href="#/contact">Contact</a>
+        </div>
+        <div>
+          <strong>Access</strong><a href="#/portal">My YardVest</a
+          ><a href="#/admin">Team login</a><a href="#/privacy">Privacy</a
+          ><a href="#/terms">Terms</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year"></span> YardVest</span
+        ><span>A few great homes. A few smart choices.</span>
+      </div>
+    </footer>
 
-  <dialog id="property-dialog" class="form-dialog" aria-labelledby="property-title">
-    <button class="dialog-close" aria-label="Close">×</button>
-    <div class="form-intro"><span class="eyebrow">PROPERTY REVIEW</span><h2 id="property-title">Let’s start with your address.</h2><p>We’ll take an initial look and follow up about what may be possible. No automated zoning promises—just a thoughtful first review.</p></div>
-    <form id="property-form" data-form="property">
-      <div class="field full"><label for="property-address">Property address *</label><input id="property-address" name="propertyAddress" autocomplete="street-address" required placeholder="Street address, city, province/state"></div>
-      <div class="field"><label for="property-first-name">First name *</label><input id="property-first-name" name="firstName" autocomplete="given-name" required></div>
-      <div class="field"><label for="property-last-name">Last name *</label><input id="property-last-name" name="lastName" autocomplete="family-name" required></div>
-      <div class="field"><label for="property-email">Email *</label><input id="property-email" name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label for="property-phone">Phone</label><input id="property-phone" name="phone" type="tel" autocomplete="tel"></div>
-      <div class="field"><label for="property-interest">What is your goal?</label><select id="property-interest" name="interest"><option value="">Choose one</option><option>Rental income</option><option>Housing for family</option><option>Flexible / additional space</option><option>Not sure yet</option></select></div>
-      <div class="field"><label for="property-model">Which home interests you?</label><select id="property-model" name="modelInterest"><option value="">Help me choose</option><option value="yv-one">YardVest One</option><option value="yv-two">YardVest Two</option><option value="suite-plus">Suite Plus</option></select></div>
-      <div class="field full"><label for="property-notes">Tell us anything about your property</label><textarea id="property-notes" name="notes" rows="3"></textarea></div>
-      <input type="hidden" name="sourcePage" id="source-page">
-      <div class="full"><button class="button button-accent button-wide" type="submit">Check My Property <span>↗</span></button><p class="form-note">By submitting, you agree that YardVest may contact you about your property.</p></div>
-    </form>
-  </dialog>
-  <dialog id="advisor-dialog" class="form-dialog" aria-labelledby="advisor-title">
-    <button class="dialog-close advisor-close" aria-label="Close">×</button>
-    <div class="form-intro"><span class="eyebrow">TALK TO AN ADVISOR</span><h2 id="advisor-title">Let’s talk about your property.</h2><p>Request a callback. We’ll connect this conversation to the same customer and property journey.</p></div>
-    <form data-form="advisor">
-      <div class="field"><label>First name *</label><input name="firstName" autocomplete="given-name" required></div>
-      <div class="field"><label>Last name *</label><input name="lastName" autocomplete="family-name" required></div>
-      <div class="field"><label>Email *</label><input name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label>Phone *</label><input name="phone" type="tel" autocomplete="tel" required></div>
-      <div class="field full"><label>Property address</label><input name="propertyAddress" autocomplete="street-address"></div>
-      <div class="field"><label>Preferred contact method</label><select name="contactMethod"><option>Phone</option><option>Email</option><option>Text message</option></select></div>
-      <div class="field"><label>Preferred time</label><input name="preferredTime" placeholder="e.g. Weekday mornings"></div>
-      <div class="field full"><label>How can we help?</label><textarea name="message" rows="4"></textarea></div>
-      <button class="button button-accent full" type="submit">Request an Advisor Callback ↗</button>
-    </form>
-  </dialog>
-  <div class="toast" role="status" aria-live="polite"></div>
-  <script src="config.js"></script>
-  <script type="module" src="project-os.js"></script>
-  <script src="app.js"></script>
-</body>
+    <dialog
+      id="property-dialog"
+      class="form-dialog"
+      aria-labelledby="property-title"
+    >
+      <button class="dialog-close" aria-label="Close">×</button>
+      <div class="form-intro">
+        <span class="eyebrow">PROPERTY REVIEW</span>
+        <h2 id="property-title">Let’s start with your address.</h2>
+        <p>
+          We’ll take an initial look and follow up about what may be possible.
+          No automated zoning promises—just a thoughtful first review.
+        </p>
+      </div>
+      <form id="property-form" data-form="property">
+        <div class="field full">
+          <label for="property-address">Property address *</label
+          ><input
+            id="property-address"
+            name="propertyAddress"
+            autocomplete="street-address"
+            required
+            placeholder="Start typing your HRM address"
+          />
+          <div
+            id="property-map"
+            class="property-map"
+            aria-label="Property map preview"
+          ></div>
+        </div>
+        <input type="hidden" name="latitude" id="property-latitude" /><input
+          type="hidden"
+          name="longitude"
+          id="property-longitude"
+        /><input type="hidden" name="locality" id="property-locality" /><input
+          type="hidden"
+          name="province"
+          id="property-province"
+        /><input
+          type="hidden"
+          name="postalCode"
+          id="property-postal-code"
+        /><input type="hidden" name="country" id="property-country" />
+        <div class="field">
+          <label for="property-first-name">First name *</label
+          ><input
+            id="property-first-name"
+            name="firstName"
+            autocomplete="given-name"
+            required
+          />
+        </div>
+        <div class="field">
+          <label for="property-last-name">Last name *</label
+          ><input
+            id="property-last-name"
+            name="lastName"
+            autocomplete="family-name"
+            required
+          />
+        </div>
+        <div class="field">
+          <label for="property-email">Email *</label
+          ><input
+            id="property-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <div class="field">
+          <label for="property-phone">Phone</label
+          ><input
+            id="property-phone"
+            name="phone"
+            type="tel"
+            autocomplete="tel"
+          />
+        </div>
+        <div class="field">
+          <label for="property-interest">What is your goal?</label
+          ><select id="property-interest" name="interest">
+            <option value="">Choose one</option>
+            <option>Rental income</option>
+            <option>Housing for family</option>
+            <option>Flexible / additional space</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="property-model">Which home interests you?</label
+          ><select id="property-model" name="modelInterest">
+            <option value="">Help me choose</option>
+            <option value="yv-one">YardVest One</option>
+            <option value="yv-two">YardVest Two</option>
+            <option value="suite-plus">Suite Plus</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dwelling-type">Current main dwelling</label
+          ><select id="dwelling-type" name="dwellingType" required>
+            <option value="">Choose one</option>
+            <option value="single">Single-detached</option>
+            <option value="semi">Semi-detached</option>
+            <option value="duplex">Duplex / two-unit</option>
+            <option value="row">Townhouse / rowhouse</option>
+            <option value="apartment3">Three-unit apartment</option>
+            <option value="other">Other / not sure</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="existing-suite"
+            >Existing secondary, garden or backyard suite?</label
+          ><select id="existing-suite" name="existingSuite" required>
+            <option value="unknown">Not sure</option>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="access-width"
+            >Clear route from street at least 1.1 m wide?</label
+          ><select id="access-width" name="accessWidth" required>
+            <option value="unknown">Not sure</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="servicing">Property servicing</label
+          ><select id="servicing" name="servicing">
+            <option value="unknown">Not sure</option>
+            <option value="municipal">Municipal water and wastewater</option>
+            <option value="septic">Well and/or septic</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="property-notes"
+            >Tell us anything about your property</label
+          ><textarea id="property-notes" name="notes" rows="3"></textarea>
+        </div>
+        <input type="hidden" name="sourcePage" id="source-page" />
+        <div class="full">
+          <button class="button button-accent button-wide" type="submit">
+            Check My Property <span>↗</span>
+          </button>
+          <p class="form-note">
+            By submitting, you agree that YardVest may contact you about your
+            property.
+          </p>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="advisor-dialog"
+      class="form-dialog"
+      aria-labelledby="advisor-title"
+    >
+      <button class="dialog-close advisor-close" aria-label="Close">×</button>
+      <div class="form-intro">
+        <span class="eyebrow">TALK TO AN EXPERT</span>
+        <h2 id="advisor-title">Let’s talk about your property.</h2>
+        <p>
+          Request a callback from a YardVest expert. We’ll connect the
+          conversation to the same customer and property journey.
+        </p>
+      </div>
+      <form data-form="advisor">
+        <div class="field">
+          <label>First name *</label
+          ><input name="firstName" autocomplete="given-name" required />
+        </div>
+        <div class="field">
+          <label>Last name *</label
+          ><input name="lastName" autocomplete="family-name" required />
+        </div>
+        <div class="field">
+          <label>Email *</label
+          ><input name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label>Phone *</label
+          ><input name="phone" type="tel" autocomplete="tel" required />
+        </div>
+        <div class="field full">
+          <label>Property address</label
+          ><input name="propertyAddress" autocomplete="street-address" />
+        </div>
+        <div class="field">
+          <label>Preferred contact method</label
+          ><select name="contactMethod">
+            <option>Phone</option>
+            <option>Email</option>
+            <option>Text message</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Preferred time</label
+          ><input name="preferredTime" placeholder="e.g. Weekday mornings" />
+        </div>
+        <div class="field full">
+          <label>How can we help?</label
+          ><textarea name="message" rows="4"></textarea>
+        </div>
+        <button class="button button-accent full" type="submit">
+          Request an Expert Callback ↗
+        </button>
+      </form>
+    </dialog>
+    <button
+      class="chat-launcher"
+      data-chat-open
+      aria-controls="live-chat"
+      aria-expanded="false"
+    >
+      <span>●</span> Live chat
+    </button>
+    <aside
+      class="live-chat"
+      id="live-chat"
+      aria-label="Live chat with a YardVest expert"
+      hidden
+    >
+      <div class="chat-head">
+        <div>
+          <strong>YardVest Expert</strong
+          ><span>We typically reply shortly</span>
+        </div>
+        <button data-chat-close aria-label="Close live chat">×</button>
+      </div>
+      <div class="chat-messages" data-chat-messages>
+        <p class="chat-system">
+          Hi—tell us about your property or ask anything about YardVest.
+        </p>
+      </div>
+      <form data-chat-form>
+        <div class="chat-identity">
+          <input name="name" placeholder="Your name" required /><input
+            name="email"
+            type="email"
+            placeholder="Email"
+            required
+          />
+        </div>
+        <textarea
+          name="message"
+          placeholder="Type your message…"
+          required
+          rows="3"
+        ></textarea
+        ><button class="button button-dark" type="submit">Send message</button>
+        <p class="chat-note" data-chat-status></p>
+      </form>
+    </aside>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="config.js"></script>
+    <script type="module" src="project-os.js"></script>
+    <script src="maps.js"></script>
+    <script src="chat.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

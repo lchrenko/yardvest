@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import {
+  assessHRMEligibility,
   nextProjectStage,
   normalizeEmail,
   stripeSignature,
@@ -9,6 +10,28 @@ import {
   validateLead,
   verifyStripeHeader,
 } from "../supabase/functions/_shared/core.js";
+
+test("HRM screening is preliminary and escalates uncertain constraints", () => {
+  const promising = assessHRMEligibility({
+    address: "10 Example Street, Halifax",
+    locality: "Halifax",
+    dwellingType: "single",
+    existingSuite: "no",
+    accessWidth: "yes",
+    servicing: "municipal",
+  });
+  assert.equal(promising.status, "promising");
+  assert.equal(
+    assessHRMEligibility({
+      address: "Halifax",
+      dwellingType: "single",
+      existingSuite: "yes",
+      accessWidth: "unknown",
+      servicing: "septic",
+    }).status,
+    "expert_review",
+  );
+});
 
 test("lead validation normalizes email and requires property identity", () => {
   const result = validateLead({

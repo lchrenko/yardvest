@@ -1,5 +1,13 @@
 const osConfig = () => window.YARDVEST_CONFIG || {};
 const sessionKey = "yardvest_session";
+const escapeHtml = (value) =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    (character) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        character
+      ],
+  );
 
 function getSession() {
   try {
@@ -118,7 +126,7 @@ async function loadPortal(root) {
 }
 
 async function loadAdmin(root) {
-  const [projects, tasks, consultations] = await Promise.all([
+  const [projects, tasks, consultations, chats] = await Promise.all([
     api(
       "/rest/v1/projects?select=id,stage,updated_at,contacts(first_name,last_name,email),properties(address_line)&order=updated_at.desc&limit=50",
     ),
@@ -127,6 +135,9 @@ async function loadAdmin(root) {
     ),
     api(
       "/rest/v1/consultations?select=id,starts_at,status,project_id&starts_at=gte.now()&order=starts_at.asc&limit=20",
+    ),
+    api(
+      "/rest/v1/chat_conversations?select=id,status,last_message_at,contacts(first_name,last_name,email),chat_messages(id,sender_type,body,created_at)&order=last_message_at.desc&limit=10",
     ),
   ]);
   const count = (stage) =>
@@ -154,7 +165,51 @@ async function loadAdmin(root) {
     )
     .join(
       "",
-    )}</div><div class="os-columns"><section><h2>Pipeline</h2>${projects.map((p) => `<article class="os-row"><strong>${p.contacts?.first_name || "Lead"} ${p.contacts?.last_name || ""}</strong><span>${p.properties?.address_line || "Address pending"}</span><em>${p.stage.replaceAll("_", " ")}</em></article>`).join("")}</section><section><h2>Tasks & consultations</h2>${tasks.map((t) => `<article class="os-row"><strong>${t.title}</strong><span>${t.due_at ? new Date(t.due_at).toLocaleDateString() : "No due date"}</span></article>`).join("")}${consultations.map((c) => `<article class="os-row"><strong>Consultation</strong><span>${new Date(c.starts_at).toLocaleString()}</span></article>`).join("")}</section></div></div>`;
+    )}</div><div class="os-columns"><section><h2>Pipeline</h2>${projects.map((p) => `<article class="os-row"><strong>${escapeHtml(p.contacts?.first_name || "Lead")} ${escapeHtml(p.contacts?.last_name || "")}</strong><span>${escapeHtml(p.properties?.address_line || "Address pending")}</span><em>${p.stage.replaceAll("_", " ")}</em></article>`).join("")}</section><section><h2>Tasks & consultations</h2>${tasks.map((t) => `<article class="os-row"><strong>${escapeHtml(t.title)}</strong><span>${t.due_at ? new Date(t.due_at).toLocaleDateString() : "No due date"}</span></article>`).join("")}${consultations.map((c) => `<article class="os-row"><strong>Consultation</strong><span>${new Date(c.starts_at).toLocaleString()}</span></article>`).join("")}</section></div><section class="os-chat-queue"><h2>Live chat</h2>${
+    chats.length
+      ? chats
+          .map((chat) => {
+            const ordered = [...(chat.chat_messages || [])].sort((a, b) =>
+              a.created_at.localeCompare(b.created_at),
+            );
+            return `<article class="os-chat-thread"><header><strong>${escapeHtml(chat.contacts?.first_name || "Visitor")} ${escapeHtml(chat.contacts?.last_name || "")}</strong><span>${escapeHtml(chat.contacts?.email || "")}</span></header><div>${ordered.map((message) => `<p class="${message.sender_type === "visitor" ? "visitor" : "expert"}"><b>${message.sender_type === "visitor" ? "Visitor" : "YardVest"}</b>${escapeHtml(message.body)}</p>`).join("")}</div><form data-chat-reply="${chat.id}"><input name="body" required maxlength="4000" placeholder="Reply as YardVest"><button class="button button-dark" type="submit">Send reply</button></form></article>`;
+          })
+          .join("")
+      : "<p>No chat conversations yet.</p>"
+  }</section></div>`;
+  root.querySelectorAll("[data-chat-reply]").forEach((form) => {
+    form.onsubmit = async (event) => {
+      event.preventDefault();
+      const button = form.querySelector("button");
+      button.disabled = true;
+      try {
+        await api("/rest/v1/chat_messages", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            conversation_id: form.dataset.chatReply,
+            sender_type: "expert",
+            body: new FormData(form).get("body"),
+          }),
+        });
+        await api(
+          `/rest/v1/chat_conversations?id=eq.${form.dataset.chatReply}`,
+          {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ last_message_at: new Date().toISOString() }),
+          },
+        );
+        await loadAdmin(root);
+      } catch (error) {
+        button.disabled = false;
+        form.insertAdjacentHTML(
+          "beforebegin",
+          `<p class="os-error">${error.message}</p>`,
+        );
+      }
+    };
+  });
 }
 
 export function bindProjectOS() {

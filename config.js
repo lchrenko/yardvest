@@ -3,4 +3,5 @@ window.YARDVEST_CONFIG = {
   supabaseUrl: "",
   supabaseAnonKey: "",
   functionsUrl: "",
+  googleMapsApiKey: "",
 };
