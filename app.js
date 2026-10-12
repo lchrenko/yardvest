@@ -866,6 +866,8 @@ function updatePlanMode(mode = "dimensioned") {
     image.src = view.image.src;
     image.alt = view.image.alt;
     card.querySelector("[data-plan-caption]").textContent = view.image.label;
+    card.querySelector("figcaption strong").textContent = view.title;
+    card.querySelector("[data-plan-open]").setAttribute("aria-label", `Enlarge ${view.title} plan`);
   });
   analytics("floorplan_viewed", {
     productId: model.id,
