@@ -1315,7 +1315,7 @@ async function submitForm(e) {
   }
   if (!saved) {
     showToast(
-      "We couldn't submit that yet. Please try again or email hello@yardvest.com.",
+      "We couldn't submit that yet. Please try again or email info@bolld.ca.",
     );
     return;
   }
