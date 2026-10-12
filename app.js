@@ -1370,7 +1370,7 @@ function safeCatalogueValue(value,key='') {
   return value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 window.addEventListener('yardvest-market-changed',route);
-window.addEventListener('yardvest-catalogue-ready',()=>{
+function applyPublicCatalogue() {
   const catalogue=window.YardVestMarkets.catalogue;
   if(Array.isArray(catalogue)) {
     models.forEach(p=>{p.visible=catalogue.some(live=>live.id===p.id);});
@@ -1380,4 +1380,6 @@ window.addEventListener('yardvest-catalogue-ready',()=>{
     }
   }
   route();
-});
+}
+window.addEventListener('yardvest-catalogue-ready',applyPublicCatalogue);
+if(window.YardVestMarkets?.catalogue) applyPublicCatalogue();
