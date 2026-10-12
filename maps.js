@@ -8,7 +8,7 @@
     loaded = new Promise((resolve, reject) => {
       window.__yardvestMapsReady = () => resolve(true);
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=places&callback=__yardvestMapsReady`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&loading=async&libraries=places&callback=__yardvestMapsReady`;
       script.async = true;
       script.defer = true;
       script.onerror = () => reject(new Error("Google Maps could not load"));
@@ -43,6 +43,11 @@
     const input = document.querySelector("#property-address");
     if (!input || input.dataset.mapsReady) return;
     input.dataset.mapsReady = "true";
+    input.addEventListener("input", () => {
+      for (const id of ["property-latitude", "property-longitude", "property-locality", "property-province", "property-postal-code"]) {
+        const field = document.getElementById(id); if (field) field.value = "";
+      }
+    });
     input.addEventListener("change", () => showMap(input.value));
     try {
       if (!(await loadGoogleMaps())) return;
