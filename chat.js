@@ -5,6 +5,12 @@
   const form = document.querySelector("[data-chat-form]");
   const messages = document.querySelector("[data-chat-messages]");
   const status = document.querySelector("[data-chat-status]");
+  if (!window.YARDVEST_CONFIG?.functionsUrl) {
+    launcher.textContent = 'Talk to an Expert';
+    launcher.addEventListener('click', () => document.querySelector('.advisor-link[data-advisor]')?.click());
+    panel.hidden = true;
+    return;
+  }
   let conversationId = sessionStorage.getItem("yardvest_chat_id") || "";
   let visitorToken = sessionStorage.getItem("yardvest_chat_token") || "";
   let timer;
