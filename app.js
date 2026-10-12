@@ -1278,6 +1278,7 @@ async function submitForm(e) {
           servicing: data.servicing,
         }
       : lead;
+  payload.smsConsent = data.smsConsent === "true";
   Object.assign(payload, window.YardVestMarkets?.payload() || {});
   let submission = payload;
   if (config.businessIntakeUrl) {
