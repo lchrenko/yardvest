@@ -1,3 +1,9 @@
+// Approved public selling prices, CAD. Internal reserves and supplier costs are separate.
+const approvedPrices = Object.freeze({'yv-one':159000,'yv-two':195000,'suite-plus':195000});
+const startingPrice = (model, layoutId) => model.id === 'yv-two' && layoutId === 'second-bath' ? 199000 : approvedPrices[model.id];
+const priceText = (model, layoutId) => `From CAD $${startingPrice(model, layoutId).toLocaleString('en-CA')}`;
+const priceScope = 'Starting prices exclude reserve/contingency, taxes and site-specific extras. Property suitability, local requirements, final scope and optional work require a property-specific quote.';
+const priceMarkup = (model, layoutId) => `<div class="starting-price"><strong data-starting-price>${priceText(model,layoutId)}</strong>${model.id === "yv-two" && !layoutId ? `<p class="variant-prices">Flex: CAD $195,000 · Second Bath: CAD $199,000</p>` : ""}<p class="fine-print">${priceScope}</p></div>`;
 const models = [
   {
     id: "yv-one",
@@ -17,8 +23,8 @@ const models = [
     width: "24′",
     depth: "24′",
     styles: ["Modern", "Coastal"],
-    startingPrice: null,
-    priceDisplay: null,
+    startingPrice: 159000,
+    priceDisplay: "From CAD $159,000",
     coverImage: "assets/yardvest-one/options/0924_5.png",
     gallery: [
       {
@@ -125,8 +131,8 @@ const models = [
     depth: "24′",
     styles: ["Modern", "Coastal"],
     planVariants: ["Flex", "Second Bath"],
-    startingPrice: null,
-    priceDisplay: null,
+    startingPrice: 195000,
+    priceDisplay: "From CAD $195,000",
     coverImage: "assets/yardvest-two/1002_16.png",
     gallery: [
       {
@@ -238,8 +244,8 @@ const models = [
     depth: "24′",
     garageSpaces: 1,
     styles: ["Modern", "Coastal"],
-    startingPrice: null,
-    priceDisplay: null,
+    startingPrice: 195000,
+    priceDisplay: "From CAD $195,000",
     coverImage: "assets/suite-plus/1008_6.png",
     gallery: [
       {
@@ -356,6 +362,7 @@ models.forEach((model) => {
     model.planVariants = [
       {
         id: "flex",
+        startingPrice: 195000,
         name: "Flex",
         description: "Two private rooms on the upper level.",
         floorPlans: model.floorPlans.filter(
@@ -366,6 +373,7 @@ models.forEach((model) => {
       },
       {
         id: "second-bath",
+        startingPrice: 199000,
         name: "Second Bath",
         description: "One upper bedroom with an additional full bathroom.",
         floorPlans: model.floorPlans.filter((plan) =>
@@ -434,7 +442,7 @@ const faqs = [
   ],
   [
     "How much does a YardVest home cost?",
-    "Pricing depends on the model, property conditions, site work and location. We do not publish an unverified all-in price; a property review helps establish the right context.",
+    "Starting prices are CAD $159,000 for YardVest One, $195,000 for YardVest Two Flex, $199,000 for YardVest Two Second Bath, and $195,000 for Suite Plus. Reserve/contingency, taxes and site-specific extras are excluded. A property review confirms suitability and the quoted scope.",
   ],
   [
     "How long does construction take?",
@@ -519,9 +527,9 @@ const pairedImages = (model, extra = "") =>
     )
     .join("")}</div>`;
 const productShowcase = (m) =>
-  `<article class="product-showcase"><div class="product-showcase-copy"><span class="eyebrow">${m.name.toUpperCase()}</span><h3>${m.tagline}</h3><p>${m.shortDescription}</p><div class="specs">${m.id === "yv-one" ? "24′ × 24′ · 1 BED · 1 BATH" : m.id === "yv-two" ? "24′ × 24′ · TWO STOREYS · 2 LAYOUTS" : "24′ × 24′ · 1 BED · GARAGE"}</div><a class="text-link" href="#/homes/${m.slug}">Explore ${m.name} <span>↗</span></a></div>${pairedImages(m)}</article>`;
+  `<article class="product-showcase"><div class="product-showcase-copy"><span class="eyebrow">${m.name.toUpperCase()}</span><h3>${m.tagline}</h3><p>${m.shortDescription}</p>${priceMarkup(m)}<div class="specs">${m.id === "yv-one" ? "24′ × 24′ · 1 BED · 1 BATH" : m.id === "yv-two" ? "24′ × 24′ · TWO STOREYS · 2 LAYOUTS" : "24′ × 24′ · 1 BED · GARAGE"}</div><a class="text-link" href="#/homes/${m.slug}">Explore ${m.name} <span>↗</span></a></div>${pairedImages(m)}</article>`;
 const card = (m) =>
-  `<article class="home-card"><a href="#/homes/${m.slug}" aria-label="Explore ${m.name}"><div class="home-visual">${m.coverImage ? `<img class="home-cover" src="${m.coverImage}" alt="${m.name} exterior" loading="lazy">` : '<span class="mini-home"></span>'}<span class="status">MODERN + COASTAL</span></div><div class="home-card-body"><h3>${m.name}</h3><div class="specs">${m.id === "yv-one" ? "24′ × 24′ · 1 BED · 1 BATH" : m.id === "yv-two" ? "24′ × 24′ · TWO STOREYS · 2 OPTIONS" : "24′ × 24′ · 1 BED · GARAGE"}</div><p>${m.shortDescription}</p><span class="text-link">Explore ${m.name} <span>↗</span></span></div></a></article>`;
+  `<article class="home-card"><a href="#/homes/${m.slug}" aria-label="Explore ${m.name}"><div class="home-visual">${m.coverImage ? `<img class="home-cover" src="${m.coverImage}" alt="${m.name} exterior" loading="lazy">` : '<span class="mini-home"></span>'}<span class="status">MODERN + COASTAL</span></div><div class="home-card-body"><h3>${m.name}</h3><div class="specs">${m.id === "yv-one" ? "24′ × 24′ · 1 BED · 1 BATH" : m.id === "yv-two" ? "24′ × 24′ · TWO STOREYS · 2 OPTIONS" : "24′ × 24′ · 1 BED · GARAGE"}</div><p>${m.shortDescription}</p>${priceMarkup(m)}<span class="text-link">Explore ${m.name} <span>↗</span></span></div></a></article>`;
 const faqMarkup = (limit = faqs.length) =>
   `<div class="faq-list">${faqs
     .slice(0, limit)
@@ -717,7 +725,7 @@ function modelPage(model, params = new URLSearchParams()) {
             layoutId: variant.id,
             layoutName: variant.name,
           })[1].image;
-          return `<button type="button" class="layout-choice ${variant.id === layout.id ? "active" : ""}" data-layout-select="${variant.id}" aria-pressed="${variant.id === layout.id}"><img src="${preview.src}" alt="${variant.name} upper-level plan"><span><strong>${variant.name}</strong><small>${variant.description}</small><em>${variant.id === layout.id ? "Selected" : "Choose layout"}</em></span></button>`;
+          return `<button type="button" class="layout-choice ${variant.id === layout.id ? "active" : ""}" data-layout-select="${variant.id}" aria-pressed="${variant.id === layout.id}"><img src="${preview.src}" alt="${variant.name} upper-level plan"><span><strong>${variant.name}</strong><small>${variant.description}</small><small>${priceText(model,variant.id)}</small><em>${variant.id === layout.id ? "Selected" : "Choose layout"}</em></span></button>`;
         })
         .join(
           "",
@@ -731,7 +739,7 @@ function modelPage(model, params = new URLSearchParams()) {
   const exteriorNextTarget = model.planVariants
     ? "#choose-layout"
     : "#the-plan";
-  return `<article class="model-configurator" data-product="${model.id}"><section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · <span data-current-style>${style.name.toUpperCase()}</span></span><h1>${model.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${model.longDescription}</p><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${model.id}">Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art"><img class="model-cover" data-hero-image src="${style.coverImage}" alt="${model.name} ${style.name} exterior" fetchpriority="high"></div></section><section class="section style-section" id="choose-style"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>One YardVest. Two expressions.</h2></div><p>Choose a style and we’ll bring its exterior views into focus.</p></div><div class="style-choices">${model.styles.map((item) => `<button type="button" class="style-choice ${item.id === style.id ? "active" : ""}" data-style-select="${item.id}" aria-pressed="${item.id === style.id}"><img src="${item.coverImage}" alt="${model.name} ${item.name} style preview"><span><strong>${item.name}</strong><small>${item.description}</small><em>${item.id === style.id ? "Selected" : "Choose style"}</em></span></button>`).join("")}</div><div class="selection-next"><button class="button button-dark" type="button" data-explore-exterior>Explore ${style.name} exterior <span>↓</span></button></div></section><section class="section exterior-explorer" tabindex="-1"><div class="section-head"><div><span class="eyebrow">EXPLORE <span data-gallery-style>${style.name.toUpperCase()}</span></span><h2 data-gallery-title>${style.name} from every angle.</h2></div><p data-style-description>${style.description}</p></div><figure class="exterior-main"><button type="button" data-gallery-open aria-label="Open selected exterior image"><img src="${style.gallery[0].src}" alt="${style.gallery[0].alt}" data-gallery-main><span class="zoom-label">View larger ↗</span></button></figure><div class="exterior-thumbnails" data-gallery-thumbnails>${style.gallery.map((image, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-gallery-index="${index}" aria-pressed="${index === 0}" aria-label="Show ${image.alt}"><img src="${image.src}" alt=""></button>`).join("")}</div><button class="text-link view-all" type="button" data-gallery-view-all>View all ${style.name} images ↗</button><div class="selection-next"><button class="button button-light" type="button" data-next-step="${exteriorNextTarget}">${exteriorNextLabel} <span>↓</span></button></div></section>${layoutSection}${planMarkup(model, currentConfiguration)}<section class="section"><div class="section-head"><div><span class="eyebrow">KEY FEATURES</span><h2>${model.tagline}</h2></div><p>${model.shortDescription}</p></div><ul class="feature-list">${model.features.map((feature) => `<li>${feature}</li>`).join("")}</ul></section>${configurationSummary(model, currentConfiguration)}<section class="section related-homes" aria-labelledby="related-homes-title"><div class="section-head"><div><span class="eyebrow">EXPLORE THE COLLECTION</span><h2 id="related-homes-title">Meet the other YardVests.</h2></div><p>Compare the other two homes to find the right fit for your yard.</p></div><div class="homes-grid related-homes-grid">${models.filter((other) => other.visible!==false && other.id !== model.id).map(card).join("")}</div></section><div class="configuration-bar" data-configuration-bar><strong>${model.name}</strong><span data-sticky-style>${style.name} ✓</span>${layout ? `<span data-sticky-layout>${layout.name} ✓</span>` : ""}<button type="button" data-save-configuration>Save My YardVest</button></div></article>`;
+  return `<article class="model-configurator" data-product="${model.id}"><section class="model-hero"><div class="model-title"><span class="eyebrow">YARDVEST HOME · <span data-current-style>${style.name.toUpperCase()}</span></span><h1>${model.name}</h1><div class="model-meta"><span>${specs}</span></div><p>${model.longDescription}</p>${priceMarkup(model, currentConfiguration.layoutId)}<button class="text-link rental-estimate-link" data-property-check data-rental-estimate data-model="${model.id}">Estimate rental income</button><div class="hero-actions"><button class="button button-dark" data-property-check data-model="${model.id}">Check My Property <span>↗</span></button><button class="button button-light" data-advisor>Talk to an Expert</button></div></div><div class="model-art"><img class="model-cover" data-hero-image src="${style.coverImage}" alt="${model.name} ${style.name} exterior" fetchpriority="high"></div></section><section class="section style-section" id="choose-style"><div class="section-head"><div><span class="eyebrow">CHOOSE YOUR STYLE</span><h2>One YardVest. Two expressions.</h2></div><p>Choose a style and we’ll bring its exterior views into focus.</p></div><div class="style-choices">${model.styles.map((item) => `<button type="button" class="style-choice ${item.id === style.id ? "active" : ""}" data-style-select="${item.id}" aria-pressed="${item.id === style.id}"><img src="${item.coverImage}" alt="${model.name} ${item.name} style preview"><span><strong>${item.name}</strong><small>${item.description}</small><em>${item.id === style.id ? "Selected" : "Choose style"}</em></span></button>`).join("")}</div><div class="selection-next"><button class="button button-dark" type="button" data-explore-exterior>Explore ${style.name} exterior <span>↓</span></button></div></section><section class="section exterior-explorer" tabindex="-1"><div class="section-head"><div><span class="eyebrow">EXPLORE <span data-gallery-style>${style.name.toUpperCase()}</span></span><h2 data-gallery-title>${style.name} from every angle.</h2></div><p data-style-description>${style.description}</p></div><figure class="exterior-main"><button type="button" data-gallery-open aria-label="Open selected exterior image"><img src="${style.gallery[0].src}" alt="${style.gallery[0].alt}" data-gallery-main><span class="zoom-label">View larger ↗</span></button></figure><div class="exterior-thumbnails" data-gallery-thumbnails>${style.gallery.map((image, index) => `<button type="button" class="${index === 0 ? "active" : ""}" data-gallery-index="${index}" aria-pressed="${index === 0}" aria-label="Show ${image.alt}"><img src="${image.src}" alt=""></button>`).join("")}</div><button class="text-link view-all" type="button" data-gallery-view-all>View all ${style.name} images ↗</button><div class="selection-next"><button class="button button-light" type="button" data-next-step="${exteriorNextTarget}">${exteriorNextLabel} <span>↓</span></button></div></section>${layoutSection}${planMarkup(model, currentConfiguration)}<section class="section"><div class="section-head"><div><span class="eyebrow">KEY FEATURES</span><h2>${model.tagline}</h2></div><p>${model.shortDescription}</p></div><ul class="feature-list">${model.features.map((feature) => `<li>${feature}</li>`).join("")}</ul></section>${configurationSummary(model, currentConfiguration)}<section class="section related-homes" aria-labelledby="related-homes-title"><div class="section-head"><div><span class="eyebrow">EXPLORE THE COLLECTION</span><h2 id="related-homes-title">Meet the other YardVests.</h2></div><p>Compare the other two homes to find the right fit for your yard.</p></div><div class="homes-grid related-homes-grid">${models.filter((other) => other.visible!==false && other.id !== model.id).map(card).join("")}</div></section><div class="configuration-bar" data-configuration-bar><strong>${model.name}</strong><span data-sticky-style>${style.name} ✓</span>${layout ? `<span data-sticky-layout>${layout.name} ✓</span>` : ""}<button type="button" data-save-configuration>Save My YardVest</button></div></article>`;
 }
 const pages = {
   "how-it-works": () =>
@@ -898,6 +906,7 @@ function updateConfigurator() {
   const style = selectedStyle(model);
   const layout = selectedLayout(model);
   if (!model || !style) return;
+  document.querySelectorAll('[data-starting-price]').forEach(el => { if(el.closest('.model-title') || el.closest('.summary-copy')) el.textContent = priceText(model,currentConfiguration.layoutId); });
   const hero = document.querySelector("[data-hero-image]");
   hero.src = style.coverImage;
   hero.alt = `${model.name} ${style.name} exterior`;
@@ -1016,7 +1025,7 @@ function actionConfiguration(button) {
   if (button.closest(".model-configurator")) return currentConfiguration;
   if (button.dataset.savedContext !== undefined)
     return configurationStore.get();
-  return null;
+  return currentConfiguration;
 }
 
 function bind() {
@@ -1025,7 +1034,7 @@ function bind() {
     .forEach(
       (button) =>
         (button.onclick = () =>
-          openProperty(button.dataset.model, actionConfiguration(button))),
+          openProperty(button.dataset.model, actionConfiguration(button), button.hasAttribute("data-rental-estimate"))),
     );
   document
     .querySelectorAll("[data-advisor]")
@@ -1124,6 +1133,7 @@ function bind() {
     .forEach((f) => (f.onsubmit = submitForm));
 }
 function route() {
+  document.querySelectorAll(".homes-menu").forEach(menu => menu.open = false);
   const raw = location.hash.replace(/^#\/?/, "") || "";
   const [path, query = ""] = raw.split("?");
   const params = new URLSearchParams(query);
@@ -1177,8 +1187,9 @@ function applyFormContext(form, configuration, type) {
   }
 }
 
-function openProperty(model = "", configuration = null) {
+function openProperty(model = "", configuration = null, rentalEstimate = false) {
   const form = document.querySelector("#property-form");
+  form.elements.rentalEstimateRequested.checked = rentalEstimate;
   const context = configuration?.productId
     ? configuration
     : model && currentConfiguration?.productId === model
@@ -1265,6 +1276,7 @@ async function submitForm(e) {
           layoutId: data.layoutId,
           layoutName: data.layoutName,
           notes: data.notes,
+          rentalEstimateRequested: data.rentalEstimateRequested === "true",
           source: data.sourcePage || "website",
           latitude: data.latitude,
           longitude: data.longitude,
@@ -1379,7 +1391,7 @@ function applyPublicCatalogue() {
     models.forEach(p=>{p.visible=catalogue.some(live=>live.id===p.id);});
     for(const live of catalogue) {
       const index=models.findIndex(p=>p.id===live.id);
-      if(index>=0 && Array.isArray(live.styles) && live.styles.length && Array.isArray(live.features)) models[index]={...models[index],...safeCatalogueValue(live),startingPrice:null,priceDisplay:'Inquire for details'};
+      if(index>=0 && Array.isArray(live.styles) && live.styles.length && Array.isArray(live.features)) models[index]={...models[index],...safeCatalogueValue(live),startingPrice:approvedPrices[models[index].id],priceDisplay:priceText(models[index])};
     }
   }
   route();

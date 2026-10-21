@@ -22,7 +22,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20261009-2" />
+    <link rel="stylesheet" href="styles.css?v=20261021-pricing" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -43,7 +43,7 @@
         <span>YardVest<small>BACKYARD INCOME HOMES</small></span>
       </a>
       <nav class="desktop-nav" aria-label="Main navigation">
-        <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a
+        <details class="homes-menu"><summary>Homes</summary><div class="homes-menu-list"><a href="#/homes/yardvest-one">One</a><a href="#/homes/yardvest-two">Two</a><a href="#/homes/suite-plus">Plus</a></div></details><a href="#/how-it-works">How It Works</a
         ><a href="#/eligibility">Eligibility</a
         ><a href="#/portal">My YardVest</a>
       </nav>
@@ -62,7 +62,7 @@
         <span></span><span></span>
       </button>
       <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
-        <a href="#/homes">Homes</a><a href="#/how-it-works">How It Works</a
+        <details class="homes-menu"><summary>Homes</summary><div class="homes-menu-list"><a href="#/homes/yardvest-one">One</a><a href="#/homes/yardvest-two">Two</a><a href="#/homes/suite-plus">Plus</a></div></details><a href="#/how-it-works">How It Works</a
         ><a href="#/eligibility">Eligibility</a
         ><a href="#/incentives">Incentives</a><a href="#/portal">My YardVest</a
         ><a href="#/admin">Team login</a
@@ -190,7 +190,7 @@
             autocomplete="tel"
           />
         </div>
-        <div class="field full"><label class="sms-permission"><input type="checkbox" name="smsConsent" value="true"> I agree to receive YardVest enquiry updates and appointment reminders by text. Message and data rates may apply. Reply STOP to unsubscribe. Optional.</label></div><div class="field"><label for="property-interest">What is your goal?</label
+        <div class="field full"><label class="sms-permission"><input type="checkbox" name="rentalEstimateRequested" value="true"> Please include a rental income estimate.</label></div><div class="field full"><label class="sms-permission"><input type="checkbox" name="smsConsent" value="true"> I agree to receive YardVest enquiry updates and appointment reminders by text. Message and data rates may apply. Reply STOP to unsubscribe. Optional.</label></div><div class="field"><label for="property-interest">What is your goal?</label
           ><select id="property-interest" name="interest">
             <option value="">Choose one</option>
             <option>Rental income</option>
@@ -380,6 +380,6 @@
     <script type="module" src="project-os.js"></script>
     <script src="maps.js"></script><script src="markets.js"></script>
     <script src="chat.js"></script>
-    <script src="app.js?v=20261011-markets"></script>
+    <script src="app.js?v=20261021-pricing"></script>
   </body>
 </html>

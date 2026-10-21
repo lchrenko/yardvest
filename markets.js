@@ -25,11 +25,6 @@
   }
   function render(root,productId) {
     selector();
-    const m=market(),name=m?.name||(selected==='hrm'?'HRM':'Vancouver / Lower Mainland');
-    const section=document.createElement('section'); section.className='section market-information';
-    const products=productId?data?.products.filter(p=>p.id===productId):data?.products;
-    section.innerHTML=`<span class="eyebrow">${esc(name)}</span><h2>What could it earn?</h2><p>Rental potential depends on the home, location and property. These are planning assumptions, not guaranteed income.</p><div class="market-economics">${(products||[]).map(p=>{const o=offer(p.id);return `<article><h3>${esc(p.name)}</h3><p>${esc(o?.active?formatRent(o):'Availability requires review')}</p><p>${esc(o?.public_notes||'')}</p><p>Pricing: <button class="text-link" data-advisor>Inquire for details ↗</button></p></article>`;}).join('')||'<p>Rent estimate requires review. Inquire for details.</p>'}</div><p>${esc(m?.public_notes||'Our team will review your property and local delivery options.')}</p><a class="text-link" href="#/eligibility">View local requirements ↗</a>`;
-    const hero=root.querySelector('.model-hero,.hero'); if(hero) hero.insertAdjacentElement('afterend',section);
     if(productId){const o=offer(productId);root.querySelectorAll('[data-style-select],[data-layout-select]').forEach(b=>{const id=b.dataset.styleSelect||b.dataset.layoutSelect;if(o?.disabled_options?.includes(id)){b.disabled=true;b.title='Unavailable in this market';b.querySelector('em').textContent='Unavailable in this market';}});if(data&&!o?.active){const notice=document.createElement('p');notice.className='market-notice';notice.textContent='This design is not currently available in the selected market. Ask an advisor about alternatives.';root.prepend(notice);}}
   }
   window.YardVestMarkets={page,render,offer,payload:()=>({selectedMarket:selected,utmSource:attribution.utm_source||'',utmMedium:attribution.utm_medium||'',utmCampaign:attribution.utm_campaign||'',utmContent:attribution.utm_content||'',utmTerm:attribution.utm_term||'',referrer:document.referrer?new URL(document.referrer).origin:''}),get catalogue(){return data?.products||null;}};
