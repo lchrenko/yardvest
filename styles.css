@@ -2233,3 +2233,9 @@ a {
 /* Compact collection navigation and approved public starting prices. */
 .homes-menu{position:relative}.homes-menu summary{cursor:pointer;list-style:none;font-weight:600}.homes-menu summary::after{content:"⌄";margin-left:.5rem}.homes-menu-list{position:absolute;top:calc(100% + 12px);left:0;min-width:160px;padding:10px;background:#fff;border:1px solid #d9dfd6;border-radius:12px;box-shadow:0 12px 24px #183d2415;z-index:30}.homes-menu-list a{display:block;padding:12px 16px;border-radius:6px}.homes-menu-list a:hover{background:#f0f3ed}.starting-price{margin:18px 0}.starting-price strong{font-size:1.25rem}.starting-price .fine-print{font-size:.78rem;line-height:1.5;max-width:54ch;margin-top:8px}.rental-estimate-link{font-size:.9rem;margin:0 0 16px}.mobile-nav .homes-menu-list{position:static;box-shadow:none;border:0;padding-left:12px}.sms-permission input{flex-shrink:0}
 button.rental-estimate-link{display:block;width:max-content;max-width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;font-size:.9rem;text-decoration:underline;text-underline-offset:4px;cursor:pointer;text-align:left}
+
+/* Align navigation labels and selector on the same header centre line. */
+.desktop-nav{align-items:center}.desktop-nav .homes-menu summary{padding:12px 0;font-size:13px;line-height:normal}.header-actions .market-selector{display:flex;align-items:center;gap:8px;margin:0}.header-actions .market-selector select{height:40px}.form-dialog .pac-container{z-index:1}.address-search-status{margin:8px 0 0!important;font-size:12px!important;line-height:1.5}
+@media(max-width:760px){.header-actions .market-selector{display:flex}.market-selector{font-size:0}.market-selector select{font-size:11px}}
+@media(max-width:420px){.header-actions .market-selector{gap:0}.header-actions .market-selector select{max-width:120px}}
+.mobile-nav .homes-menu summary{padding:13px}
